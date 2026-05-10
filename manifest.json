@@ -1,13 +1,13 @@
 {
-  "name": "Quản Lý Đèn Tắt CSCC",
-  "short_name": "Đèn Tắt",
-  "description": "Quản lý và báo cáo đèn chiếu sáng công cộng bị sự cố tại TP.HCM",
-  "start_url": "./dentat.html",
+  "name": "Quản Lý Camera Trụ CSCC",
+  "short_name": "Camera CSCC",
+  "description": "Quản lý và kiểm tra an toàn camera lắp trên trụ chiếu sáng công cộng TP.HCM",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#0f172a",
-  "theme_color": "#0ea5e9",
+  "theme_color": "#0f172a",
   "lang": "vi",
   "icons": [
     {

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Hướng dẫn — Quản Lý Đèn Tắt CSCC</title>
+  <title>Hướng dẫn — Quản Lý Camera Trụ CSCC</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -13,8 +13,8 @@
       --green: #10b981; --green-light: #d1fae5;
       --red: #ef4444; --red-light: #fee2e2;
       --sky: #0ea5e9; --sky-light: #e0f2fe;
+      --amber: #f59e0b; --amber-light: #fef3c7;
       --purple: #7c3aed; --purple-light: #ede9fe;
-      --amber: #f59e0b;
       --text: #1e293b; --text-muted: #64748b; --border: #e2e8f0; --bg: #f8fafc;
     }
     html, body { font-family: 'Inter', system-ui, sans-serif; color: var(--text); background: var(--bg); }
@@ -40,13 +40,13 @@
 
     /* ── HERO ── */
     .hero {
-      background: linear-gradient(135deg, var(--navy) 0%, #1e3a5f 60%, #0f172a 100%);
+      background: linear-gradient(135deg, var(--navy) 0%, #1a2744 60%, #0f172a 100%);
       padding: 40px 20px 48px; text-align: center; color: #fff;
     }
     .hero-icon { font-size: 56px; margin-bottom: 14px; }
     .hero-title { font-size: 24px; font-weight: 800; margin-bottom: 6px;
       background: linear-gradient(135deg,#fbbf24,#f97316); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-    .hero-sub { font-size: 14px; color: rgba(255,255,255,.6); max-width: 460px; margin: 0 auto 24px; line-height: 1.6; }
+    .hero-sub { font-size: 14px; color: rgba(255,255,255,.6); max-width: 480px; margin: 0 auto 24px; line-height: 1.6; }
     .hero-link {
       display: inline-flex; align-items: center; gap: 8px;
       background: var(--orange); color: #fff; text-decoration: none;
@@ -98,7 +98,6 @@
     .status-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
     .status-label { font-size: 14px; font-weight: 600; flex: 1; }
     .status-desc { font-size: 12px; color: var(--text-muted); }
-    .status-tag { font-size: 11px; font-weight: 700; border-radius: 6px; padding: 2px 8px; flex-shrink: 0; }
     .pulse-demo {
       width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; position: relative;
     }
@@ -109,6 +108,19 @@
     }
     @keyframes pulse { 0%{opacity:.7;transform:scale(1)} 100%{opacity:0;transform:scale(2)} }
 
+    /* ── SAFETY TABLE ── */
+    .safety-grid { display: flex; flex-direction: column; gap: 8px; }
+    .safety-row {
+      display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px;
+      border-radius: 10px; background: var(--bg); border: 1px solid var(--border);
+    }
+    .safety-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .safety-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .safety-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .safety-badge { font-size: 11px; font-weight: 700; border-radius: 6px; padding: 2px 8px; white-space: nowrap; flex-shrink: 0; }
+    .badge-danger { background: var(--red-light); color: var(--red); }
+    .badge-ok { background: var(--green-light); color: var(--green); }
+
     /* ── TIPS ── */
     .tip { display: flex; gap: 12px; padding: 12px 14px; border-radius: 10px; align-items: flex-start; margin-bottom: 10px; }
     .tip:last-child { margin-bottom: 0; }
@@ -118,7 +130,7 @@
     .tip-desc { font-size: 13px; line-height: 1.6; color: var(--text-muted); }
     .tip.info { background: var(--sky-light); }
     .tip.info .tip-title { color: #0369a1; }
-    .tip.warn { background: var(--amber-light, #fef3c7); }
+    .tip.warn { background: var(--amber-light); }
     .tip.warn .tip-title { color: #92400e; }
     .tip.ok { background: var(--green-light); }
     .tip.ok .tip-title { color: #065f46; }
@@ -165,17 +177,17 @@
 
 <!-- TOPBAR -->
 <nav class="topbar">
-  <a href="dentat.html" class="topbar-back">← Mở app</a>
-  <span class="topbar-title">💡 Hướng dẫn sử dụng</span>
-  <span class="topbar-ver">v1.2</span>
+  <a href="index.html" class="topbar-back">← Mở app</a>
+  <span class="topbar-title">📖 Hướng dẫn sử dụng</span>
+  <span class="topbar-ver">v1.0</span>
 </nav>
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-icon">💡</div>
-  <div class="hero-title">Quản Lý Đèn Tắt CSCC</div>
-  <div class="hero-sub">Hướng dẫn đầy đủ cho nhân viên khảo sát, báo cáo và theo dõi tiến độ sửa chữa đèn chiếu sáng công cộng.</div>
-  <a href="dentat.html" class="hero-link">🗺 Mở bản đồ ngay</a>
+  <div class="hero-icon">📷</div>
+  <div class="hero-title">Quản Lý Camera Trụ CSCC</div>
+  <div class="hero-sub">Hướng dẫn đầy đủ cho nhân viên khảo sát, ghi nhận tình trạng an toàn và quản lý camera lắp trên trụ chiếu sáng công cộng.</div>
+  <a href="index.html" class="hero-link">🗺 Mở bản đồ ngay</a>
 </div>
 
 <!-- TOC -->
@@ -186,13 +198,13 @@
       <li><a href="#s-purpose"><span class="ti">🎯</span>Mục đích của phần mềm</a></li>
       <li><a href="#s-login"><span class="ti">🔑</span>Đăng nhập & đăng xuất</a></li>
       <li><a href="#s-map"><span class="ti">🗺</span>Giao diện bản đồ</a></li>
-      <li><a href="#s-status"><span class="ti">🔴</span>Ý nghĩa màu sắc đèn</a></li>
-      <li><a href="#s-add"><span class="ti">➕</span>Thêm đèn hư mới</a></li>
-      <li><a href="#s-edit"><span class="ti">✏️</span>Sửa thông tin đèn</a></li>
-      <li><a href="#s-fix"><span class="ti">✅</span>Đánh dấu đã sửa xong</a></li>
+      <li><a href="#s-status"><span class="ti">🔴</span>Ý nghĩa màu sắc trên bản đồ</a></li>
+      <li><a href="#s-safety"><span class="ti">🛡</span>Chỉ tiêu đánh giá an toàn</a></li>
+      <li><a href="#s-add"><span class="ti">➕</span>Thêm camera mới</a></li>
+      <li><a href="#s-edit"><span class="ti">✏️</span>Xem chi tiết & sửa thông tin</a></li>
       <li><a href="#s-filter"><span class="ti">🔽</span>Lọc & tìm kiếm</a></li>
       <li><a href="#s-report"><span class="ti">📊</span>Xuất báo cáo</a></li>
-      <li><a href="#s-export"><span class="ti">💾</span>Xuất file Excel & CAD</a></li>
+      <li><a href="#s-export"><span class="ti">💾</span>Xuất Excel & CAD</a></li>
       <li><a href="#s-faq"><span class="ti">❓</span>Câu hỏi thường gặp</a></li>
     </ul>
   </div>
@@ -208,28 +220,28 @@
       <span class="section-title">Mục đích của phần mềm</span>
     </div>
     <div class="section-body">
-      <p><strong>Quản Lý Đèn Tắt CSCC</strong> là công cụ số hóa quy trình tiếp nhận, theo dõi và xử lý sự cố đèn chiếu sáng công cộng bị hư hỏng trên địa bàn TP.HCM — thay thế hoàn toàn việc ghi chép bằng giấy tờ, sổ sách.</p>
+      <p><strong>Quản Lý Camera Trụ CSCC</strong> là công cụ số hóa việc ghi nhận, kiểm tra và theo dõi tình trạng an toàn của các camera lắp đặt trên trụ đèn chiếu sáng công cộng tại TP.HCM — thay thế hoàn toàn sổ sách giấy tờ.</p>
 
       <div class="ui-grid" style="margin:16px 0">
         <div class="ui-card">
           <div class="ui-icon">📍</div>
           <div class="ui-name">Ghi nhận tức thời</div>
-          <div class="ui-desc">Nhân viên phát hiện đèn hư → chụp ảnh + lấy GPS → lưu ngay lên hệ thống từ điện thoại, không cần về văn phòng.</div>
+          <div class="ui-desc">Nhân viên khảo sát ghi nhận camera ngay tại hiện trường bằng điện thoại: chụp ảnh, lấy GPS, điền phiếu — không cần về văn phòng.</div>
+        </div>
+        <div class="ui-card">
+          <div class="ui-icon">🛡</div>
+          <div class="ui-name">Đánh giá an toàn</div>
+          <div class="ui-desc">4 chỉ tiêu an toàn được ghi nhận cho mỗi camera. Hệ thống tự động tính toán và hiển thị mức độ: An toàn / Có nguy cơ / Chưa xác định.</div>
         </div>
         <div class="ui-card">
           <div class="ui-icon">🗺</div>
           <div class="ui-name">Trực quan trên bản đồ</div>
-          <div class="ui-desc">Toàn bộ đèn hư hiển thị theo màu trạng thái trên bản đồ số, giúp quản lý nắm tình hình toàn khu vực một cách nhanh chóng.</div>
+          <div class="ui-desc">Toàn bộ camera hiển thị theo màu trạng thái an toàn trên bản đồ số, giúp quản lý nắm tình hình toàn khu vực tức thì.</div>
         </div>
         <div class="ui-card">
           <div class="ui-icon">📊</div>
-          <div class="ui-name">Theo dõi tiến độ</div>
-          <div class="ui-desc">Biết ngay đèn nào đang hư, hư bao nhiêu ngày, ai phát hiện, ai sửa — tránh bỏ sót hoặc xử lý trùng lặp.</div>
-        </div>
-        <div class="ui-card">
-          <div class="ui-icon">📥</div>
-          <div class="ui-name">Xuất báo cáo tự động</div>
-          <div class="ui-desc">Tạo báo cáo sự cố theo ngày/tuần ra file Excel, phục vụ báo cáo định kỳ lên cấp trên mà không cần tổng hợp thủ công.</div>
+          <div class="ui-name">Báo cáo tự động</div>
+          <div class="ui-desc">Tạo báo cáo theo khoảng thời gian ra file Excel phục vụ báo cáo định kỳ, không cần tổng hợp thủ công.</div>
         </div>
       </div>
 
@@ -238,9 +250,9 @@
         <div class="tip-body">
           <div class="tip-title">Đối tượng sử dụng</div>
           <div class="tip-desc">
-            <strong>Nhân viên khảo sát:</strong> Ghi nhận đèn hư trực tiếp ngoài hiện trường bằng điện thoại.<br>
-            <strong>Tổ trưởng / Quản lý:</strong> Theo dõi tổng thể, phân công sửa chữa, xuất báo cáo.<br>
-            <strong>Đội sửa chữa:</strong> Cập nhật trạng thái đã sửa xong sau khi hoàn thành công việc.
+            <strong>Nhân viên khảo sát:</strong> Ghi nhận camera và đánh giá an toàn trực tiếp ngoài hiện trường.<br>
+            <strong>Tổ trưởng / Quản lý:</strong> Theo dõi tổng thể, lọc camera nguy cơ, xuất báo cáo.<br>
+            <strong>Quản trị viên:</strong> Quản lý tài khoản, phân quyền truy cập.
           </div>
         </div>
       </div>
@@ -249,7 +261,7 @@
         <span class="tip-icon">☁️</span>
         <div class="tip-body">
           <div class="tip-title">Dữ liệu lưu trữ tập trung</div>
-          <div class="tip-desc">Mọi thao tác (thêm, sửa, cập nhật trạng thái) được đồng bộ lên <strong>Data</strong>. Nhiều người dùng trên nhiều thiết bị đều thấy dữ liệu mới nhất sau khi tải lại.</div>
+          <div class="tip-desc">Mọi thao tác (thêm, sửa, cập nhật) được đồng bộ lên <strong>Google Sheet (Data)</strong>. Nhiều người dùng trên nhiều thiết bị đều thấy dữ liệu mới nhất sau khi tải lại.</div>
         </div>
       </div>
     </div>
@@ -267,28 +279,28 @@
           <div class="step-num">1</div>
           <div class="step-body">
             <div class="step-title">Mở ứng dụng</div>
-            <div class="step-desc">Truy cập link ứng dụng trên điện thoại hoặc máy tính. Màn hình đăng nhập sẽ hiện lên tự động nếu chưa có phiên làm việc.</div>
+            <div class="step-desc">Truy cập link ứng dụng trên điện thoại hoặc máy tính. Màn hình đăng nhập hiện tự động nếu chưa có phiên làm việc.</div>
           </div>
         </div>
         <div class="step">
           <div class="step-num">2</div>
           <div class="step-body">
             <div class="step-title">Nhập tài khoản</div>
-            <div class="step-desc">Điền <strong>tên đăng nhập</strong> và <strong>mật khẩu</strong> mặc định được cấp bởi quản trị viên (mặc định: usename: hlten; password: ten123 Ví dụ: Nguyễn Quý Tiên → nqtien; tien123 ). Nhấn <strong>Enter</strong> hoặc nút <em>"Đăng nhập"</em>.</div>
+            <div class="step-desc">Điền <strong>tên đăng nhập</strong> và <strong>mật khẩu</strong> được cấp bởi quản trị viên. Nhấn <strong>Enter</strong> hoặc nút <em>"Đăng nhập"</em>.</div>
           </div>
         </div>
         <div class="step">
           <div class="step-num">3</div>
           <div class="step-body">
             <div class="step-title">Phiên làm việc</div>
-            <div class="step-desc">Sau khi đăng nhập, ứng dụng tự động lưu phiên — không cần đăng nhập lại mỗi lần mở. Chỉ đăng xuất khi đổi máy hoặc có yêu cầu bảo mật.</div>
+            <div class="step-desc">Sau khi đăng nhập thành công, ứng dụng tự lưu phiên — không cần đăng nhập lại mỗi lần mở trình duyệt.</div>
           </div>
         </div>
         <div class="step">
           <div class="step-num">4</div>
           <div class="step-body">
             <div class="step-title">Đăng xuất</div>
-            <div class="step-desc">Nhấn vào <strong>tên người dùng</strong> ở góc trên bên phải, hoặc vào <strong>Menu ☰ → Đăng xuất</strong>. Xác nhận khi được hỏi.</div>
+            <div class="step-desc">Nhấn nút <strong>☰ Menu</strong> ở thanh dưới → cuối menu chọn <strong>🚪 Đăng xuất</strong>. Xác nhận khi được hỏi.</div>
           </div>
         </div>
       </div>
@@ -297,7 +309,7 @@
         <span class="tip-icon">ℹ️</span>
         <div class="tip-body">
           <div class="tip-title">Quên mật khẩu?</div>
-          <div class="tip-desc">Liên hệ quản trị viên để được cấp lại mật khẩu. Mật khẩu không thể tự đặt lại qua ứng dụng.</div>
+          <div class="tip-desc">Liên hệ quản trị viên để được cấp lại. Mật khẩu không thể tự đặt lại qua ứng dụng.</div>
         </div>
       </div>
     </div>
@@ -311,35 +323,38 @@
     </div>
     <div class="section-body">
       <p>Giao diện gồm 4 vùng chính:</p>
-      <div class="ui-grid">
+      <div class="ui-grid" style="margin:14px 0">
         <div class="ui-card">
           <div class="ui-icon">⬆️</div>
           <div class="ui-name">Thanh trên (Top bar)</div>
-          <div class="ui-desc">Logo, ô tìm kiếm nhanh, tên người dùng đang đăng nhập.</div>
+          <div class="ui-desc">Logo ứng dụng và ô tìm kiếm nhanh theo số trụ, tuyến đường, phường.</div>
         </div>
         <div class="ui-card">
           <div class="ui-icon">📊</div>
           <div class="ui-name">Dải thống kê</div>
-          <div class="ui-desc">Hiển thị số lượng đèn theo từng trạng thái. Nhấn vào chip để xem danh sách đèn trong trạng thái đó.</div>
+          <div class="ui-desc">Chip màu thống kê số lượng camera theo trạng thái. Nhấn vào chip để xem danh sách chi tiết.</div>
         </div>
         <div class="ui-card">
           <div class="ui-icon">🗺</div>
           <div class="ui-name">Bản đồ</div>
-          <div class="ui-desc">Vùng bản đồ tương tác. Chuyển lớp OSM / Vệ tinh ở góc trên phải. Nhấn vào dot đèn để xem chi tiết.</div>
+          <div class="ui-desc">Vùng bản đồ tương tác. Chuyển lớp OSM / Vệ tinh ở góc trên phải. Nhấn vào dot camera để xem chi tiết.</div>
         </div>
         <div class="ui-card">
           <div class="ui-icon">⬇️</div>
           <div class="ui-name">Thanh dưới (Bottom nav)</div>
-          <div class="ui-desc">5 nút: Menu, Vị trí, Thêm đèn, Báo cáo, Lưu Excel.</div>
+          <div class="ui-desc">5 nút: ☰ Menu · 📍 Vị trí · ➕ Thêm · 📊 Báo cáo · 💾 Lưu Excel.</div>
         </div>
       </div>
       <hr class="soft">
-      <p style="font-weight:700;font-size:14px;margin-bottom:10px">Các nút điều khiển bản đồ (góc phải)</p>
+      <p style="font-weight:700;font-size:14px;margin-bottom:10px">Nút điều khiển Bottom nav</p>
       <table class="tbl">
         <thead><tr><th>Nút</th><th>Chức năng</th></tr></thead>
         <tbody>
-          <tr><td>+&nbsp;/&nbsp;−</td><td>Phóng to / thu nhỏ bản đồ</td></tr>
-          <tr><td>OSM / Vệ tinh</td><td>Chuyển đổi lớp nền bản đồ</td></tr>
+          <tr><td>☰ <strong>Menu</strong></td><td>Mở sidebar: lọc, nhập/xuất file, báo cáo, hướng dẫn, đăng xuất</td></tr>
+          <tr><td>📍 <strong>Vị trí</strong></td><td>Di chuyển bản đồ đến vị trí GPS hiện tại của bạn</td></tr>
+          <tr><td>➕ <strong>Thêm</strong></td><td>Bật chế độ thêm camera mới</td></tr>
+          <tr><td>📊 <strong>Báo cáo</strong></td><td>Mở modal xuất báo cáo theo khoảng ngày</td></tr>
+          <tr><td>💾 <strong>Lưu</strong></td><td>Xuất toàn bộ dữ liệu ra file Excel</td></tr>
         </tbody>
       </table>
     </div>
@@ -349,98 +364,156 @@
   <div class="section" id="s-status">
     <div class="section-header">
       <span class="section-icon">🔴</span>
-      <span class="section-title">Ý nghĩa màu sắc đèn trên bản đồ</span>
+      <span class="section-title">Ý nghĩa màu sắc trên bản đồ</span>
     </div>
     <div class="section-body">
-      <p>Mỗi đèn hiển thị dưới dạng <strong>chấm tròn màu</strong>. Đèn đang hư có <strong>vòng nhấp nháy</strong> để dễ nhận biết.</p>
+      <p>Mỗi camera hiển thị dưới dạng <strong>chấm tròn màu</strong> trên bản đồ. Màu sắc phản ánh mức độ an toàn được đánh giá qua 4 chỉ tiêu kiểm tra.</p>
       <div class="status-grid" style="margin-top:14px">
         <div class="status-row" style="background:#fee2e2;border-color:#ef4444">
           <div class="pulse-demo" style="background:#ef4444;color:#ef4444"></div>
-          <div class="status-label" style="color:#ef4444">Đèn LED đang hư</div>
-          <span class="status-tag" style="background:#ef4444;color:#fff">Mã 1</span>
+          <div>
+            <div class="status-label" style="color:#ef4444">⚠ Có nguy cơ mất an toàn</div>
+            <div class="status-desc">Ít nhất 1 chỉ tiêu an toàn bị vi phạm. Cần xử lý khẩn.</div>
+          </div>
         </div>
-        <div class="status-row" style="background:#ffedd5;border-color:#f97316">
-          <div class="pulse-demo" style="background:#f97316;color:#f97316"></div>
-          <div class="status-label" style="color:#f97316">Đèn HPS đang hư</div>
-          <span class="status-tag" style="background:#f97316;color:#fff">Mã 7</span>
-        </div>
-        <div class="status-row" style="background:#ede9fe;border-color:#7c3aed">
-          <div class="pulse-demo" style="background:#7c3aed;color:#7c3aed"></div>
-          <div class="status-label" style="color:#7c3aed">Đèn hư quá 10 ngày</div>
-          <span class="status-tag" style="background:#7c3aed;color:#fff">Mã 5</span>
+        <div class="status-row" style="background:#fef3c7;border-color:#f59e0b">
+          <div class="status-dot" style="background:#f59e0b"></div>
+          <div>
+            <div class="status-label" style="color:#f59e0b">? Chưa xác định an toàn</div>
+            <div class="status-desc">Chưa có thông tin đánh giá an toàn. Cần khảo sát bổ sung.</div>
+          </div>
         </div>
         <div class="status-row" style="background:#d1fae5;border-color:#10b981">
           <div class="status-dot" style="background:#10b981"></div>
-          <div class="status-label" style="color:#10b981">Đèn LED sáng bình thường</div>
-          <span class="status-tag" style="background:#10b981;color:#fff">Mã 3</span>
-        </div>
-        <div class="status-row" style="background:#e0f2fe;border-color:#0ea5e9">
-          <div class="status-dot" style="background:#0ea5e9"></div>
-          <div class="status-label" style="color:#0ea5e9">Đèn HPS sáng bình thường</div>
-          <span class="status-tag" style="background:#0ea5e9;color:#fff">Mã 4</span>
+          <div>
+            <div class="status-label" style="color:#10b981">✓ An toàn</div>
+            <div class="status-desc">Tất cả 4 chỉ tiêu an toàn đều đạt yêu cầu.</div>
+          </div>
         </div>
       </div>
       <hr class="soft">
-      <div class="tip info">
-        <span class="tip-icon">💡</span>
+      <div class="tip err">
+        <span class="tip-icon">🔴</span>
         <div class="tip-body">
           <div class="tip-title">Vòng nhấp nháy (pulse)</div>
-          <div class="tip-desc">Các đèn <strong>đang hư</strong> (mã 1, 5, 7) có vòng nhấp nháy xung quanh dot để dễ phát hiện từ xa trên bản đồ.</div>
+          <div class="tip-desc">Camera <strong>Có nguy cơ mất an toàn</strong> có vòng nhấp nháy đỏ xung quanh để dễ nhận biết từ xa trên bản đồ ngay cả khi đang thu nhỏ.</div>
         </div>
       </div>
-      <div class="tip ok" style="margin-top:8px">
+      <div class="tip info" style="margin-top:8px">
         <span class="tip-icon">📍</span>
         <div class="tip-body">
           <div class="tip-title">Nhóm marker (cluster)</div>
-          <div class="tip-desc">Khi thu nhỏ bản đồ, các đèn gần nhau tự động gom thành nhóm. Nhấn vào nhóm để mở rộng và xem từng đèn.</div>
+          <div class="tip-desc">Khi thu nhỏ bản đồ, các camera gần nhau tự gom thành nhóm số. Nhấn vào nhóm để tách ra và xem từng camera riêng lẻ.</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ADD MARKER -->
+  <!-- SAFETY CRITERIA -->
+  <div class="section" id="s-safety">
+    <div class="section-header">
+      <span class="section-icon">🛡</span>
+      <span class="section-title">Chỉ tiêu đánh giá an toàn</span>
+    </div>
+    <div class="section-body">
+      <p>Hệ thống tự động xác định trạng thái an toàn dựa trên <strong>4 chỉ tiêu</strong> dưới đây. Nếu bất kỳ chỉ tiêu nào vi phạm → camera bị đánh dấu <strong style="color:#ef4444">Có nguy cơ mất an toàn</strong>.</p>
+      <div class="safety-grid" style="margin-top:14px">
+        <div class="safety-row">
+          <span class="safety-icon">🔌</span>
+          <div style="flex:1">
+            <div class="safety-label">Camera đã được cách ly với trụ đèn</div>
+            <div class="safety-desc">Camera phải được lắp cách ly vật lý với phần kim loại dẫn điện của trụ đèn.</div>
+          </div>
+          <span class="safety-badge badge-danger">Không = Nguy cơ</span>
+        </div>
+        <div class="safety-row">
+          <span class="safety-icon">🔋</span>
+          <div style="flex:1">
+            <div class="safety-label">Cáp nguồn 2 lớp vỏ bọc</div>
+            <div class="safety-desc">Dây cáp cấp nguồn phải có đủ 2 lớp cách điện để chống rò rỉ điện ra vỏ trụ.</div>
+          </div>
+          <span class="safety-badge badge-danger">Không = Nguy cơ</span>
+        </div>
+        <div class="safety-row">
+          <span class="safety-icon">⚡</span>
+          <div style="flex:1">
+            <div class="safety-label">Có mối nối hở</div>
+            <div class="safety-desc">Mối nối điện hở trần (không được bọc cách điện) là mối nguy hiểm điện giật và đoản mạch.</div>
+          </div>
+          <span class="safety-badge badge-danger">Có = Nguy cơ</span>
+        </div>
+        <div class="safety-row">
+          <span class="safety-icon">🔗</span>
+          <div style="flex:1">
+            <div class="safety-label">Có kẹp treo, kẹp dừng cố định cáp</div>
+            <div class="safety-desc">Cáp phải được cố định bằng kẹp treo và kẹp dừng để tránh cáp bị giật tuột, mài mòn vỏ bọc theo thời gian.</div>
+          </div>
+          <span class="safety-badge badge-danger">Không = Nguy cơ</span>
+        </div>
+      </div>
+      <hr class="soft">
+      <div class="tip ok">
+        <span class="tip-icon">🤖</span>
+        <div class="tip-body">
+          <div class="tip-title">Tính toán tự động</div>
+          <div class="tip-desc">Khi điền và lưu form, ứng dụng tự động tính trạng thái: nếu tất cả 4 chỉ tiêu đạt → <strong>An toàn</strong>; có 1 chỉ tiêu vi phạm → <strong>Nguy cơ</strong>; không điền gì → <strong>Chưa xác định</strong>. Không cần chọn trạng thái thủ công.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD CAMERA -->
   <div class="section" id="s-add">
     <div class="section-header">
       <span class="section-icon">➕</span>
-      <span class="section-title">Thêm đèn hư mới</span>
+      <span class="section-title">Thêm camera mới</span>
     </div>
     <div class="section-body">
       <div class="steps">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body">
-            <div class="step-title">Nhấn nút "Thêm"</div>
-            <div class="step-desc">Nhấn nút <strong>➕ Thêm</strong> ở thanh dưới. Nút đổi thành 🛑 <em>Dừng</em> — ứng dụng đang chờ chọn vị trí.</div>
+            <div class="step-title">Nhấn nút "➕ Thêm"</div>
+            <div class="step-desc">Nhấn nút <strong>➕</strong> ở thanh dưới. Nút đổi sang màu đỏ — ứng dụng đang chờ bạn chọn vị trí.</div>
           </div>
         </div>
         <div class="step">
           <div class="step-num">2</div>
           <div class="step-body">
-            <div class="step-title">Chọn vị trí đèn</div>
-            <div class="step-desc">Một hộp thoại hỏi cách lấy vị trí:<br>
-              <strong>• OK → GPS:</strong> Dùng vị trí GPS của điện thoại ngay lúc đó (khuyên dùng khi đang đứng tại chỗ đèn hư).<br>
-              <strong>• Hủy → Nhấp bản đồ:</strong> Nhấp vào vị trí đèn trên bản đồ.</div>
+            <div class="step-title">Chọn vị trí</div>
+            <div class="step-desc">
+              Hộp thoại hỏi cách lấy vị trí:<br>
+              <strong>• OK → GPS:</strong> Dùng GPS điện thoại tại vị trí đang đứng (khuyến nghị khi ở tại chỗ trụ).<br>
+              <strong>• Hủy → Nhấp bản đồ:</strong> Nhấp trực tiếp vào vị trí trụ trên bản đồ.
+            </div>
           </div>
         </div>
         <div class="step">
           <div class="step-num">3</div>
           <div class="step-body">
             <div class="step-title">Điền thông tin vào form</div>
-            <div class="step-desc">Form thêm đèn hiện lên. Các trường <strong>bắt buộc</strong>: <em>Số trụ</em>, <em>Trạng thái</em>. Điền thêm: loại đèn, tên tủ, địa chỉ, ngày phát hiện...</div>
+            <div class="step-desc">Form thêm camera hiện lên. Điền các trường thông tin: <em>Số trụ CS</em>, <em>Tên tủ điều khiển</em>, <em>Tuyến đường</em>, <em>Phường</em>, <em>Loại trụ</em>, <em>Chủ đầu tư</em>, <em>Ngày phát hiện</em>. Địa chỉ đường/phường có thể được điền tự động từ tọa độ GPS.</div>
           </div>
         </div>
         <div class="step">
           <div class="step-num">4</div>
           <div class="step-body">
-            <div class="step-title">Chụp ảnh hiện trường (tùy chọn)</div>
-            <div class="step-desc">Nhấn <strong>📷 Chụp / chọn ảnh</strong> để mở camera hoặc chọn ảnh từ thư viện. Ảnh sẽ tự động thu nhỏ và lưu kèm hồ sơ đèn.</div>
+            <div class="step-title">Đánh giá 4 chỉ tiêu an toàn</div>
+            <div class="step-desc">Chọn <strong>Có / Không</strong> cho từng chỉ tiêu an toàn. Ghi thêm nguyên nhân khác (nếu có). Ứng dụng tự tính trạng thái khi lưu.</div>
           </div>
         </div>
         <div class="step">
           <div class="step-num">5</div>
           <div class="step-body">
-            <div class="step-title">Nhấn "Lưu dữ liệu"</div>
-            <div class="step-desc">Ứng dụng sẽ upload ảnh (nếu có) rồi ghi dữ liệu lên <strong>Data</strong>. Đèn mới xuất hiện ngay trên bản đồ sau khi lưu thành công.</div>
+            <div class="step-title">Chụp ảnh hiện trường</div>
+            <div class="step-desc">Nhấn <strong>📷 Chụp / chọn ảnh</strong> để mở camera hoặc chọn từ thư viện. Ảnh tự động được nén và lưu kèm hồ sơ camera.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <div class="step-title">Nhấn "💾 Lưu dữ liệu"</div>
+            <div class="step-desc">Ứng dụng upload ảnh (nếu có) rồi ghi dữ liệu lên <strong>Google Sheet</strong>. Camera mới xuất hiện ngay trên bản đồ với màu trạng thái tương ứng.</div>
           </div>
         </div>
       </div>
@@ -449,14 +522,14 @@
         <span class="tip-icon">📍</span>
         <div class="tip-body">
           <div class="tip-title">Mẹo lấy vị trí chính xác</div>
-          <div class="tip-desc">Đứng ngay dưới trụ đèn, bật WiFi và chờ GPS ổn định (biểu tượng ±Xm nhỏ là tốt). Tránh đứng trong tòa nhà khi lấy tọa độ.</div>
+          <div class="tip-desc">Đứng ngay dưới trụ đèn, bật WiFi, chờ GPS ổn định (±X mét hiện nhỏ là tốt). Tránh đứng trong tòa nhà hoặc gần tòa nhà cao tầng.</div>
         </div>
       </div>
       <div class="tip info" style="margin-top:8px">
         <span class="tip-icon">🤖</span>
         <div class="tip-body">
-          <div class="tip-title">Điền tự động</div>
-          <div class="tip-desc">Tên đường và phường được điền tự động từ tọa độ GPS qua Nominatim. <em>Người phát hiện</em> tự điền từ tài khoản đang đăng nhập. <em>ID</em> tự tăng.</div>
+          <div class="tip-title">Điền tự động từ GPS</div>
+          <div class="tip-desc">Sau khi lấy tọa độ, ứng dụng tự gọi Nominatim (OpenStreetMap) để điền <em>Tuyến đường</em>, <em>Phường</em> và <em>Số nhà gần nhất</em> vào form. Kiểm tra lại trước khi lưu.</div>
         </div>
       </div>
     </div>
@@ -466,79 +539,38 @@
   <div class="section" id="s-edit">
     <div class="section-header">
       <span class="section-icon">✏️</span>
-      <span class="section-title">Xem chi tiết & sửa thông tin đèn</span>
+      <span class="section-title">Xem chi tiết & sửa thông tin camera</span>
     </div>
     <div class="section-body">
       <div class="steps">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body">
-            <div class="step-title">Nhấn vào dot đèn trên bản đồ</div>
-            <div class="step-desc">Popup chi tiết hiện ra, gồm: ảnh, số trụ, trạng thái, địa chỉ, ngày phát hiện, người phát hiện, vật tư sửa, tọa độ GPS.</div>
+            <div class="step-title">Nhấn vào dot camera trên bản đồ</div>
+            <div class="step-desc">Popup chi tiết hiện ra với đầy đủ thông tin: ảnh, số trụ, trạng thái, địa chỉ, ngày phát hiện, 4 chỉ tiêu an toàn, tọa độ GPS.</div>
           </div>
         </div>
         <div class="step">
           <div class="step-num">2</div>
           <div class="step-body">
             <div class="step-title">Nhấn ✏️ Sửa trong popup</div>
-            <div class="step-desc">Form chỉnh sửa mở ra với toàn bộ dữ liệu hiện tại đã được điền sẵn. Chỉnh sửa bất kỳ trường nào cần thay đổi.</div>
+            <div class="step-desc">Form chỉnh sửa mở ra với toàn bộ dữ liệu hiện tại đã điền sẵn. Chỉnh sửa bất kỳ trường nào cần cập nhật.</div>
           </div>
         </div>
         <div class="step">
           <div class="step-num">3</div>
           <div class="step-body">
             <div class="step-title">Lưu thay đổi</div>
-            <div class="step-desc">Nhấn <strong>💾 Lưu dữ liệu</strong>. Dữ liệu sẽ được cập nhật lên Data. Dot đèn trên bản đồ tự cập nhật màu sắc theo trạng thái mới.</div>
+            <div class="step-desc">Nhấn <strong>💾 Lưu dữ liệu</strong>. Dữ liệu cập nhật lên Google Sheet. Dot camera trên bản đồ tự đổi màu theo trạng thái an toàn mới.</div>
           </div>
         </div>
       </div>
       <hr class="soft">
       <div class="tip warn">
-        <span class="tip-icon">⚠️</span>
+        <span class="tip-icon">⚡</span>
         <div class="tip-body">
-          <div class="tip-title">Double-click để chỉnh sửa nhanh</div>
-          <div class="tip-desc">Double-click vào dot đèn cũng mở thẳng form chỉnh sửa, không cần qua popup chi tiết.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- QUICK FIX -->
-  <div class="section" id="s-fix">
-    <div class="section-header">
-      <span class="section-icon">✅</span>
-      <span class="section-title">Đánh dấu đèn đã sửa xong (Quick Fix)</span>
-    </div>
-    <div class="section-body">
-      <p>Khi đèn đã được sửa xong, dùng <strong>Quick Fix</strong> để cập nhật trạng thái nhanh chóng mà không cần mở form đầy đủ.</p>
-      <div class="steps" style="margin-top:14px">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-body">
-            <div class="step-title">Nhấn vào dot đèn → xem popup</div>
-            <div class="step-desc">Popup chi tiết hiện ra với nút <strong>✅ Đã sửa</strong> (chỉ hiện với đèn đang hư — mã 1, 5, 7).</div>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-body">
-            <div class="step-title">Nhấn "✅ Đã sửa"</div>
-            <div class="step-desc">Ứng dụng tự động:<br>
-              • Đổi trạng thái: LED hư → <strong>LED bình thường (mã 3)</strong>, HPS hư → <strong>HPS bình thường (mã 4)</strong><br>
-              • Ghi ngày sửa = <strong>hôm nay</strong><br>
-              • Cập nhật lên Data ngay lập tức</div>
-          </div>
-        </div>
-      </div>
-      <hr class="soft">
-      <div class="tip ok">
-        <span class="tip-icon">✅</span>
-        <div class="tip-body">
-          <div class="tip-title">Khi nào dùng Quick Fix vs Sửa form đầy đủ?</div>
-          <div class="tip-desc">
-            <strong>Quick Fix:</strong> Khi chỉ cần xác nhận đã sửa xong, không cần ghi thêm vật tư hay người sửa.<br>
-            <strong>Sửa form đầy đủ:</strong> Khi cần ghi thêm <em>Người sửa</em>, <em>Vật tư sử dụng</em>, hoặc cập nhật ảnh sau sửa.
-          </div>
+          <div class="tip-title">Double-click để mở form nhanh</div>
+          <div class="tip-desc">Double-click vào dot camera sẽ mở thẳng form chỉnh sửa mà không cần qua popup chi tiết.</div>
         </div>
       </div>
     </div>
@@ -551,24 +583,20 @@
       <span class="section-title">Lọc theo trạng thái & tìm kiếm</span>
     </div>
     <div class="section-body">
-      <p style="font-weight:700;font-size:14px;margin-bottom:10px">Tìm kiếm</p>
-      <p>Gõ vào ô tìm kiếm ở thanh trên: nhập <em>số trụ</em>, <em>tên đường</em>, <em>tên phường</em>, hoặc <em>tên tủ</em>. Nhấn Enter hoặc 🔍 để tìm. Nếu có 1 kết quả, bản đồ tự nhảy đến; nếu nhiều kết quả, danh sách sổ xuống để chọn.</p>
+      <p style="font-weight:700;font-size:14px;margin-bottom:10px">Tìm kiếm nhanh</p>
+      <p>Gõ vào ô tìm kiếm ở thanh trên: nhập <em>số trụ CS</em>, <em>tên đường</em>, <em>phường</em>, hoặc <em>tên tủ điều khiển</em>. Nhấn Enter hoặc 🔍. Nếu có 1 kết quả, bản đồ tự nhảy đến vị trí đó.</p>
       <hr class="soft">
       <p style="font-weight:700;font-size:14px;margin-bottom:10px">Lọc theo trạng thái (dải thống kê)</p>
-      <p>Nhấn vào <strong>chip màu</strong> trên dải thống kê để:</p>
-      <ul style="margin-left:18px;font-size:14px;line-height:2">
-        <li>Xem <strong>danh sách đèn</strong> trong trạng thái đó (panel trượt từ dưới lên)</li>
-        <li>Trong panel, nhấn vào từng đèn để <strong>nhảy đến vị trí</strong> trên bản đồ</li>
-      </ul>
+      <p>Nhấn vào chip màu trên dải thống kê để xem danh sách camera trong trạng thái đó. Trong panel danh sách, nhấn vào từng camera để nhảy đến vị trí trên bản đồ.</p>
       <hr class="soft">
-      <p style="font-weight:700;font-size:14px;margin-bottom:10px">Lọc nâng cao (Menu ☰)</p>
+      <p style="font-weight:700;font-size:14px;margin-bottom:10px">Bộ lọc nâng cao (☰ Menu)</p>
       <table class="tbl">
         <thead><tr><th>Bộ lọc</th><th>Mô tả</th></tr></thead>
         <tbody>
-          <tr><td><strong>Theo trạng thái</strong></td><td>Ẩn / hiện đèn theo mã trạng thái (1, 3, 4, 5, 7)</td></tr>
-          <tr><td><strong>Theo loại đèn</strong></td><td>Chọn xem Tất cả / LED / HPS</td></tr>
-          <tr><td><strong>Theo người phát hiện</strong></td><td>Lọc đèn do một nhân viên cụ thể báo cáo</td></tr>
-          <tr><td><strong>Xóa bộ lọc</strong></td><td>Hiện nút "Xóa tất cả bộ lọc" khi đang lọc</td></tr>
+          <tr><td><strong>Theo trạng thái</strong></td><td>Ẩn / hiện camera theo mức an toàn (Nguy cơ / An toàn / Chưa xác định)</td></tr>
+          <tr><td><strong>Theo loại trụ</strong></td><td>Lọc riêng theo loại trụ đèn đang lắp camera</td></tr>
+          <tr><td><strong>Theo tuyến đường</strong></td><td>Chỉ hiển thị camera trên một tuyến đường cụ thể</td></tr>
+          <tr><td><strong>Xóa bộ lọc</strong></td><td>Nhấn <em>"✕ Xóa tất cả bộ lọc"</em> để hiện lại toàn bộ</td></tr>
         </tbody>
       </table>
     </div>
@@ -578,7 +606,7 @@
   <div class="section" id="s-report">
     <div class="section-header">
       <span class="section-icon">📊</span>
-      <span class="section-title">Xuất báo cáo hàng ngày</span>
+      <span class="section-title">Xuất báo cáo</span>
     </div>
     <div class="section-body">
       <div class="steps">
@@ -586,21 +614,21 @@
           <div class="step-num">1</div>
           <div class="step-body">
             <div class="step-title">Mở báo cáo</div>
-            <div class="step-desc">Nhấn <strong>📊 Báo cáo</strong> ở thanh dưới, hoặc vào <strong>Menu ☰ → Báo cáo hàng ngày</strong>.</div>
+            <div class="step-desc">Nhấn <strong>📊 Báo cáo</strong> ở thanh dưới, hoặc vào <strong>☰ Menu → Báo cáo camera</strong>.</div>
           </div>
         </div>
         <div class="step">
           <div class="step-num">2</div>
           <div class="step-body">
             <div class="step-title">Chọn khoảng thời gian</div>
-            <div class="step-desc">Chọn <em>Từ ngày</em> và <em>Đến ngày</em>. Ứng dụng lọc các đèn có <strong>Ngày phát hiện</strong> trong khoảng này và hiển thị tóm tắt.</div>
+            <div class="step-desc">Nhập <em>Từ ngày</em> và <em>Đến ngày</em> theo định dạng <strong>DD/MM/YYYY</strong>. Ứng dụng lọc camera có <em>Ngày phát hiện</em> trong khoảng này và hiển thị tóm tắt ngay bên dưới.</div>
           </div>
         </div>
         <div class="step">
           <div class="step-num">3</div>
           <div class="step-body">
             <div class="step-title">Xuất ra Excel</div>
-            <div class="step-desc">Nhấn <strong>📥 Xuất Excel</strong>. File tải về gồm: STT, số trụ, loại đèn, trạng thái, địa chỉ, ngày phát hiện, ngày sửa, <em>số ngày chưa sửa</em>, vật tư, ghi chú.</div>
+            <div class="step-desc">Nhấn <strong>📥 Xuất Excel</strong>. File tải về gồm: STT, số trụ CS, tên tủ, tuyến đường, phường, loại trụ, ngày phát hiện, 4 chỉ tiêu an toàn, nguyên nhân khác, ghi chú và đường dẫn hình ảnh.</div>
           </div>
         </div>
       </div>
@@ -608,8 +636,8 @@
       <div class="tip info">
         <span class="tip-icon">📅</span>
         <div class="tip-body">
-          <div class="tip-title">Báo cáo tuần mặc định</div>
-          <div class="tip-desc">Khi mở, ứng dụng tự đặt <em>Từ ngày</em> = 7 ngày trước và <em>Đến ngày</em> = hôm nay để xem nhanh báo cáo 7 ngày gần nhất.</div>
+          <div class="tip-title">Mặc định 7 ngày gần nhất</div>
+          <div class="tip-desc">Khi mở modal báo cáo, ứng dụng tự đặt <em>Từ ngày</em> = 7 ngày trước và <em>Đến ngày</em> = hôm nay để xem nhanh báo cáo tuần.</div>
         </div>
       </div>
     </div>
@@ -619,7 +647,7 @@
   <div class="section" id="s-export">
     <div class="section-header">
       <span class="section-icon">💾</span>
-      <span class="section-title">Xuất file Excel & CAD</span>
+      <span class="section-title">Xuất Excel & CAD</span>
     </div>
     <div class="section-body">
       <table class="tbl">
@@ -629,23 +657,23 @@
         <tbody>
           <tr>
             <td><strong>💾 Xuất Excel</strong></td>
-            <td>Thanh dưới → <em>Lưu</em>, hoặc Menu → <em>Xuất Excel</em></td>
-            <td>File <code>.xlsx</code> toàn bộ dữ liệu đèn (19 cột)</td>
+            <td>Thanh dưới → <em>Lưu</em>, hoặc ☰ Menu → <em>Xuất Excel</em></td>
+            <td>File <code>.xlsx</code> toàn bộ dữ liệu camera (20 cột)</td>
           </tr>
           <tr>
             <td><strong>📂 Nhập từ Excel</strong></td>
-            <td>Menu → <em>Nhập từ file Excel</em>, chọn file <code>.xlsx/.xls/.csv</code></td>
-            <td>Đèn hiển thị lên bản đồ từ file local</td>
+            <td>☰ Menu → <em>Nhập từ file Excel</em>, chọn file <code>.xlsx/.xls/.csv</code></td>
+            <td>Camera hiển thị lên bản đồ từ file local</td>
           </tr>
           <tr>
-            <td><strong>🔄 Tải lại Sheet</strong></td>
-            <td>Menu → <em>Tải lại từ Data</em></td>
-            <td>Cập nhật dữ liệu mới nhất từ server</td>
+            <td><strong>🔄 Tải lại từ Data</strong></td>
+            <td>☰ Menu → <em>Tải lại từ Data</em></td>
+            <td>Cập nhật dữ liệu mới nhất từ Google Sheet</td>
           </tr>
           <tr>
             <td><strong>📐 Xuất CAD</strong></td>
-            <td>Menu → <em>Xuất CAD (.dxf)</em></td>
-            <td>File <code>.dxf</code> với tọa độ VN2000, mở trong AutoCAD / QGIS</td>
+            <td>☰ Menu → <em>Xuất CAD (.dxf)</em></td>
+            <td>File <code>.dxf</code> tọa độ VN2000, mở trong AutoCAD / QGIS</td>
           </tr>
         </tbody>
       </table>
@@ -654,7 +682,7 @@
         <span class="tip-icon">📐</span>
         <div class="tip-body">
           <div class="tip-title">File CAD (DXF)</div>
-          <div class="tip-desc">File DXF xuất tọa độ theo hệ <strong>VN2000</strong> (UTM zone tự động, ellipsoid GRS80), phù hợp với bản đồ nền địa phương. Mỗi đèn là 1 CIRCLE và 1 TEXT trong DXF.</div>
+          <div class="tip-desc">File DXF xuất tọa độ hệ <strong>VN2000</strong> (UTM zone tự động, ellipsoid GRS80), phù hợp bản đồ nền địa phương. Mỗi camera là 1 CIRCLE và 1 TEXT trong DXF.</div>
         </div>
       </div>
     </div>
@@ -670,35 +698,35 @@
       <div class="faq">
         <div class="faq-item">
           <div class="faq-q">Tại sao ứng dụng không lấy được GPS?</div>
-          <div class="faq-a">Kiểm tra lại: (1) đã cấp quyền vị trí cho trình duyệt chưa, (2) WiFi hoặc dữ liệu di động có bật không, (3) đang ở trong tòa nhà có thể làm yếu tín hiệu GPS — hãy ra ngoài trời và thử lại.</div>
+          <div class="faq-a">Kiểm tra: (1) đã cấp quyền vị trí cho trình duyệt chưa, (2) WiFi hoặc dữ liệu di động có bật không, (3) đang trong tòa nhà có thể làm yếu tín hiệu — hãy ra ngoài trời và thử lại.</div>
         </div>
         <div class="faq-item">
-          <div class="faq-q">Bản đồ hiển thị dữ liệu cũ, chưa thấy đèn mới thêm?</div>
-          <div class="faq-a">Nhấn <strong>Menu ☰ → Tải lại từ Data</strong> để lấy dữ liệu mới nhất. Dữ liệu được đồng bộ lên server khi nhấn Lưu, nhưng bản đồ chỉ tải lại khi bạn yêu cầu.</div>
+          <div class="faq-q">Bản đồ hiển thị dữ liệu cũ, chưa thấy camera mới?</div>
+          <div class="faq-a">Nhấn <strong>☰ Menu → Tải lại từ Data</strong> để lấy dữ liệu mới nhất từ Google Sheet. Bản đồ chỉ cập nhật khi bạn yêu cầu tải lại.</div>
         </div>
         <div class="faq-item">
-          <div class="faq-q">Lưu xong nhưng không thấy dữ liệu trên Data?</div>
-          <div class="faq-a">Kiểm tra kết nối mạng. Nếu mạng tốt mà vẫn không thấy, liên hệ quản trị viên để kiểm tra Data có đang hoạt động không. Mở <em>F12 → Console</em> xem log lỗi chi tiết.</div>
+          <div class="faq-q">Lưu xong nhưng không thấy dữ liệu trong Google Sheet?</div>
+          <div class="faq-a">Kiểm tra kết nối mạng. Nếu mạng tốt mà vẫn không thấy, liên hệ quản trị viên kiểm tra Google Apps Script có đang hoạt động không. Mở <em>F12 → Console</em> để xem log lỗi chi tiết.</div>
         </div>
         <div class="faq-item">
-          <div class="faq-q">Ảnh upload thất bại, làm thế nào?</div>
-          <div class="faq-a">Thử chụp ảnh có độ phân giải thấp hơn hoặc chọn ảnh nhỏ hơn. Ứng dụng tự resize ảnh xuống nhưng một số ảnh vẫn có thể quá lớn. Kiểm tra kết nối mạng ổn định trước khi lưu.</div>
+          <div class="faq-q">Camera bị đánh dấu "Nguy cơ" nhưng thực tế đã khắc phục?</div>
+          <div class="faq-a">Mở form sửa của camera đó, cập nhật lại 4 chỉ tiêu an toàn theo tình trạng thực tế sau khắc phục, rồi nhấn Lưu. Hệ thống sẽ tự tính lại trạng thái.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Ảnh upload thất bại?</div>
+          <div class="faq-a">Thử chọn ảnh nhỏ hơn hoặc chụp lại với độ phân giải thấp hơn. Ứng dụng tự nén ảnh nhưng một số ảnh vẫn quá lớn. Đảm bảo kết nối mạng ổn định khi lưu.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Tọa độ nhập từ Excel hiển thị sai trên bản đồ?</div>
+          <div class="faq-a">Đảm bảo file Excel lưu tọa độ theo định dạng số thập phân (dấu chấm, ví dụ: <code>10.757784</code>). Nếu dữ liệu từ Google Sheet (dấu phẩy thập phân), hãy dùng tính năng <em>Tải lại từ Data</em> thay vì xuất rồi nhập lại.</div>
         </div>
         <div class="faq-item">
           <div class="faq-q">Có dùng được offline không?</div>
-          <div class="faq-a">Bản đồ và tile map được cache khi online, bạn vẫn có thể xem bản đồ khi mất mạng. Tuy nhiên, thêm/sửa đèn và lưu dữ liệu cần kết nối mạng để ghi lên Data.</div>
+          <div class="faq-a">Tile bản đồ được cache khi online, có thể xem bản đồ khi mất mạng. Tuy nhiên, thêm/sửa và lưu dữ liệu cần kết nối mạng để ghi lên Google Sheet.</div>
         </div>
         <div class="faq-item">
           <div class="faq-q">Làm sao cài ứng dụng lên màn hình điện thoại?</div>
-          <div class="faq-a">Trên Chrome Android: nhấn menu 3 chấm → <em>"Thêm vào màn hình chính"</em>. Trên Safari iOS: nhấn nút Chia sẻ → <em>"Thêm vào màn hình chính"</em>. Ứng dụng hỗ trợ PWA — hoạt động như app thật.</div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q">Ai có thể xem và sửa dữ liệu?</div>
-          <div class="faq-a">Tất cả tài khoản có thể xem và thêm/sửa đèn. Tài khoản <strong>admin / quanly</strong> (hiển thị icon 👑) có quyền truy cập đầy đủ. Tài khoản <strong>nhân viên</strong> (icon 👷) cũng có thể thêm/sửa đèn nhưng không quản lý tài khoản.</div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q">Số trụ bị trùng, phải xử lý thế nào?</div>
-          <div class="faq-a">Ứng dụng không tự kiểm tra trùng số trụ. Khi thêm đèn mới, kiểm tra ô tìm kiếm trước. Nếu đã trùng trong Data, quản trị viên có thể xóa trực tiếp trong Data và tải lại dữ liệu.</div>
+          <div class="faq-a">Trên Chrome Android: nhấn menu 3 chấm → <em>"Thêm vào màn hình chính"</em>. Trên Safari iOS: nhấn Chia sẻ → <em>"Thêm vào màn hình chính"</em>. Ứng dụng hỗ trợ PWA — hoạt động như app thật.</div>
         </div>
       </div>
     </div>
@@ -715,9 +743,11 @@
         <span class="tip-icon">👨‍💻</span>
         <div class="tip-body">
           <div class="tip-title">Mai Vũ Lâm — Tác giả & Quản trị hệ thống</div>
-          <div class="tip-desc">Email: <a href="mailto:maivulam2020@gmail.com" style="color:var(--orange)">maivulam2020@gmail.com</a><br>
-          Tel: <a href="tel:0989725507" style="color:var(--orange)">0989 725 507</a><br>
-          Khi liên hệ, vui lòng mô tả: vấn đề gặp phải, thiết bị đang dùng (điện thoại / máy tính), và ảnh chụp màn hình lỗi (nếu có).</div>
+          <div class="tip-desc">
+            Email: <a href="mailto:maivulam2020@gmail.com" style="color:var(--orange)">maivulam2020@gmail.com</a><br>
+            Tel: <a href="tel:0989725507" style="color:var(--orange)">0989 725 507</a><br>
+            Khi liên hệ, vui lòng mô tả: vấn đề gặp phải, thiết bị đang dùng (điện thoại / máy tính) và ảnh chụp màn hình lỗi (nếu có).
+          </div>
         </div>
       </div>
     </div>
@@ -727,8 +757,8 @@
 
 <!-- FOOTER -->
 <div class="footer">
-  © 2026 CSKVTT — Bản đồ chiếu sáng hệ thống chiếu sáng công cộng TP.HCM<br>
-  <a href="dentat.html">← Quay lại ứng dụng</a>
+  © 2026 CSKVTT — Quản lý camera trụ chiếu sáng công cộng TP.HCM<br>
+  <a href="index.html">← Quay lại ứng dụng</a>
 </div>
 
 </body>

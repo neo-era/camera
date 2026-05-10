@@ -1,9 +1,10 @@
-const CACHE_STATIC = 'dentat-static-v1';
-const CACHE_TILES  = 'dentat-tiles-v1';
+const CACHE_STATIC = 'camera-cscc-static-v1';
+const CACHE_TILES  = 'camera-cscc-tiles-v1';
 const MAX_TILES    = 200;
 
 const STATIC_ASSETS = [
-  './dentat.html',
+  './index.html',
+  './huongdan.html',
   './manifest.json',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
@@ -11,7 +12,7 @@ const STATIC_ASSETS = [
   'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css',
   'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js',
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
 ];
 
 self.addEventListener('install', e => {
@@ -42,6 +43,12 @@ self.addEventListener('fetch', e => {
     return;
   }
 
+  // Không cache: GitHub API (upload ảnh)
+  if (url.includes('api.github.com')) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
+
   // Cache tile bản đồ (OSM + Google)
   if (url.includes('tile.openstreetmap.org') || url.includes('google.com/vt')) {
     e.respondWith(
@@ -60,7 +67,7 @@ self.addEventListener('fetch', e => {
   }
 
   // Network-first cho HTML (luôn lấy phiên bản mới nhất, fallback cache khi offline)
-  if (url.endsWith('dentat.html') || url.endsWith('/Den%20tat/') || url.endsWith('/Den%20tat')) {
+  if (url.endsWith('index.html') || url.endsWith('huongdan.html') || url.endsWith('/camera/') || url.endsWith('/camera')) {
     e.respondWith(
       fetch(e.request)
         .then(res => {
@@ -73,7 +80,7 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Cache-first cho static assets còn lại (CSS, JS, fonts)
+  // Cache-first cho static assets (CSS, JS, fonts)
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );

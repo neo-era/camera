@@ -230,6 +230,37 @@
     .pc-btn.edit  { background: #f1f5f9; color: var(--text); }
     .pc-btn.fix   { background: var(--green); color: #fff; }
 
+    /* ── VEHICLE SHEET ── */
+    #vehicleSheet {
+      position: fixed; inset: 0; z-index: 9000; display: none;
+      align-items: flex-end; justify-content: center;
+      background: rgba(15,23,42,.5); backdrop-filter: blur(4px);
+      padding-bottom: calc(var(--bottomnav-h) + var(--safe-bottom));
+    }
+    #vehicleSheet.open { display: flex; }
+    #vehicleCard {
+      background: var(--white); border-radius: 22px 22px 0 0;
+      padding: 20px 18px 24px; width: 100%; max-width: 480px;
+      box-shadow: var(--shadow-lg); animation: slideUp .25s cubic-bezier(.4,0,.2,1);
+    }
+    #vehicleCard h4 { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    #vehicleCard p  { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+    .vehicle-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .vehicle-btn {
+      padding: 16px 10px; border-radius: 14px; border: 2px solid var(--border);
+      background: var(--bg); cursor: pointer; font-family: inherit;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      transition: border-color .15s, background .15s;
+    }
+    .vehicle-btn:hover { border-color: var(--sky); background: var(--sky-light); }
+    .vehicle-btn .vi { font-size: 32px; }
+    .vehicle-btn .vl { font-size: 13px; font-weight: 700; color: var(--text); }
+    .vehicle-btn .vs { font-size: 11px; color: var(--text-muted); }
+    .vehicle-cancel {
+      width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border);
+      background: var(--bg); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; color: var(--text-muted);
+    }
+
     /* ── MARKER DOTS ── */
     .den-marker-wrap { position: relative; }
     .den-dot {
@@ -335,6 +366,23 @@
     .rpt-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
     .rpt-btn-outline { background: var(--bg); color: var(--text); border: 1.5px solid var(--border) !important; }
     .rpt-btn-primary { background: var(--orange); color: #fff; }
+    .rpt-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+    .rpt-preset {
+      padding: 5px 12px; border-radius: 20px; border: 1.5px solid var(--border);
+      background: var(--bg); color: var(--text-muted); font-size: 12px; font-weight: 600;
+      cursor: pointer; font-family: inherit; white-space: nowrap; transition: all .15s;
+    }
+    .rpt-preset:hover, .rpt-preset.active { background: var(--orange-light); border-color: var(--orange); color: var(--orange); }
+    .rpt-date-wrap { position: relative; display: flex; gap: 6px; align-items: center; }
+    .rpt-date-wrap input[type="text"] { flex: 1; min-width: 0; }
+    .rpt-cal-btn {
+      flex-shrink: 0; width: 34px; height: 34px; border-radius: 8px;
+      border: 1.5px solid var(--border); background: var(--bg);
+      cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;
+      transition: border-color .15s;
+    }
+    .rpt-cal-btn:hover { border-color: var(--orange); }
+    .rpt-date-hidden { position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0; }
 
     /* ── SEARCH DROPDOWN ── */
     #searchDrop {
@@ -688,13 +736,55 @@
 </div>
 
 <!-- ── REPORT MODAL ── -->
+<!-- ── VEHICLE PICKER ── -->
+<div id="vehicleSheet" onclick="if(event.target===this)closeVehicleSheet()">
+  <div id="vehicleCard">
+    <h4>🧭 Chỉ đường đến trụ này</h4>
+    <p>Chọn phương tiện để lấy tuyến đường phù hợp</p>
+    <div class="vehicle-btns">
+      <button class="vehicle-btn" onclick="doRoute('car')">
+        <span class="vi">🚗</span>
+        <span class="vl">Ô tô</span>
+        <span class="vs">Đường ô tô</span>
+      </button>
+      <button class="vehicle-btn" onclick="doRoute('moto')">
+        <span class="vi">🏍</span>
+        <span class="vl">Xe máy</span>
+        <span class="vs">Tốc độ đô thị</span>
+      </button>
+    </div>
+    <button class="vehicle-cancel" onclick="closeVehicleSheet()">Hủy</button>
+  </div>
+</div>
+
 <div id="reportModal">
   <div id="reportCard">
     <h3>📊 Báo cáo camera nguy cơ</h3>
     <p>Chọn khoảng thời gian và xuất danh sách camera có vấn đề an toàn</p>
+    <div class="rpt-presets">
+      <button class="rpt-preset" onclick="setRptPreset(0)">Hôm nay</button>
+      <button class="rpt-preset" onclick="setRptPreset(6)">7 ngày</button>
+      <button class="rpt-preset" onclick="setRptPreset(29)">30 ngày</button>
+      <button class="rpt-preset" onclick="setRptPresetMonth()">Tháng này</button>
+      <button class="rpt-preset" onclick="setRptPresetLastMonth()">Tháng trước</button>
+    </div>
     <div class="rpt-row">
-      <div><label>Từ ngày</label><input type="text" id="rptFrom" placeholder="DD/MM/YYYY" inputmode="numeric" maxlength="10"></div>
-      <div><label>Đến ngày</label><input type="text" id="rptTo" placeholder="DD/MM/YYYY" inputmode="numeric" maxlength="10"></div>
+      <div>
+        <label>Từ ngày</label>
+        <div class="rpt-date-wrap">
+          <input type="text" id="rptFrom" placeholder="DD/MM/YYYY" inputmode="numeric" maxlength="10" oninput="clearRptPreset();updateReportPreview()">
+          <input type="date" id="rptFromPicker" class="rpt-date-hidden" onchange="rptPickDate('rptFrom',this)">
+          <button class="rpt-cal-btn" type="button" onclick="openRptPicker('rptFromPicker')">📅</button>
+        </div>
+      </div>
+      <div>
+        <label>Đến ngày</label>
+        <div class="rpt-date-wrap">
+          <input type="text" id="rptTo" placeholder="DD/MM/YYYY" inputmode="numeric" maxlength="10" oninput="clearRptPreset();updateReportPreview()">
+          <input type="date" id="rptToPicker" class="rpt-date-hidden" onchange="rptPickDate('rptTo',this)">
+          <button class="rpt-cal-btn" type="button" onclick="openRptPicker('rptToPicker')">📅</button>
+        </div>
+      </div>
     </div>
     <div class="rpt-row">
       <div><label>Phường / Xã</label><select id="rptPhuong"><option value="">Tất cả phường</option></select></div>
@@ -1773,15 +1863,57 @@ function populateReportFilters() {
   sel('rptNguoiPH', tuyens,  'Tất cả tuyến');
 }
 
+function fmtDMY(d) { return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; }
+function setRptPreset(daysBefore) {
+  const n = new Date();
+  const from = new Date(n.getFullYear(), n.getMonth(), n.getDate() - daysBefore);
+  document.getElementById('rptFrom').value = fmtDMY(from);
+  document.getElementById('rptTo').value   = fmtDMY(n);
+  highlightRptPreset(daysBefore);
+  updateReportPreview();
+}
+function setRptPresetMonth() {
+  const n = new Date();
+  const from = new Date(n.getFullYear(), n.getMonth(), 1);
+  document.getElementById('rptFrom').value = fmtDMY(from);
+  document.getElementById('rptTo').value   = fmtDMY(n);
+  highlightRptPreset('month');
+  updateReportPreview();
+}
+function setRptPresetLastMonth() {
+  const n = new Date();
+  const from = new Date(n.getFullYear(), n.getMonth() - 1, 1);
+  const to   = new Date(n.getFullYear(), n.getMonth(), 0);
+  document.getElementById('rptFrom').value = fmtDMY(from);
+  document.getElementById('rptTo').value   = fmtDMY(to);
+  highlightRptPreset('lastmonth');
+  updateReportPreview();
+}
+function highlightRptPreset(key) {
+  document.querySelectorAll('.rpt-preset').forEach((btn, i) => {
+    const keys = [0, 6, 29, 'month', 'lastmonth'];
+    btn.classList.toggle('active', keys[i] === key);
+  });
+}
+function clearRptPreset() {
+  document.querySelectorAll('.rpt-preset').forEach(btn => btn.classList.remove('active'));
+}
+function openRptPicker(pickerId) {
+  const el = document.getElementById(pickerId);
+  try { el.showPicker(); } catch(e) { el.click(); }
+}
+function rptPickDate(targetId, picker) {
+  if (!picker.value) return;
+  const [y, m, d] = picker.value.split('-');
+  document.getElementById(targetId).value = `${d}/${m}/${y}`;
+  picker.value = '';
+  clearRptPreset();
+  updateReportPreview();
+}
 function openReportModal() {
   if (isDemoUser()) { denyDemo(); return; }
-  const n = new Date();
-  const fmt = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-  const weekAgo = new Date(n.getFullYear(), n.getMonth(), n.getDate() - 7);
-  document.getElementById('rptFrom').value = fmt(weekAgo);
-  document.getElementById('rptTo').value = fmt(n);
   populateReportFilters();
-  updateReportPreview();
+  setRptPreset(6);
   document.getElementById('reportModal').classList.add('open');
 }
 function closeReportModal() { document.getElementById('reportModal').classList.remove('open'); }
@@ -1927,29 +2059,54 @@ function exportReport() {
 }
 
 // ── ROUTE ──
+let pendingRouteIndex = null;
+
 function routeToMarker(index) {
+  pendingRouteIndex = index;
+  document.getElementById('vehicleSheet').classList.add('open');
+}
+function closeVehicleSheet() {
+  document.getElementById('vehicleSheet').classList.remove('open');
+  pendingRouteIndex = null;
+}
+function doRoute(vehicle) {
+  const index = pendingRouteIndex; // đọc TRƯỚC khi closeVehicleSheet xóa giá trị
+  closeVehicleSheet();
+  if (index === null || !markers[index]) return;
   if (!navigator.geolocation) { showToast('Trình duyệt không hỗ trợ GPS'); return; }
   const entry = markers[index];
-  if (!entry) return;
-  navigator.geolocation.getCurrentPosition(pos => {
-    const { latitude: la, longitude: lo } = pos.coords;
-    fetchRoute([la, lo], [entry.lat, entry.lon]);
-  }, err => showToast('Không lấy được GPS: ' + err.message));
+  showToast('⏳ Đang lấy vị trí...');
+  navigator.geolocation.getCurrentPosition(
+    pos => fetchRoute([pos.coords.latitude, pos.coords.longitude], [entry.lat, entry.lon], vehicle),
+    err => showToast('Không lấy được GPS: ' + err.message),
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
 }
-async function fetchRoute(origin, dest) {
+async function fetchRoute(origin, dest, vehicle) {
+  if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
+  const isMoto = vehicle === 'moto';
+  const icon = isMoto ? '🏍' : '🚗';
   try {
-    if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
-    const url = `https://router.project-osrm.org/route/v1/driving/${origin[1]},${origin[0]};${dest[1]},${dest[0]}?overview=full&geometries=geojson`;
-    const res = await fetch(url);
+    const profile = isMoto ? 'cycling' : 'driving';
+    const url = `https://router.project-osrm.org/route/v1/${profile}/${origin[1]},${origin[0]};${dest[1]},${dest[0]}?overview=full&geometries=geojson`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
     const data = await res.json();
-    if (!data.routes || !data.routes[0]) { showToast('Không tìm được đường đi'); return; }
+    if (!data.routes || !data.routes[0]) throw new Error('no route');
     const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-    routeLine = L.polyline(coords, { color: '#0ea5e9', weight: 4, opacity: .85, dashArray: '8,4' }).addTo(map);
+    const color = isMoto ? '#f97316' : '#0ea5e9';
+    routeLine = L.polyline(coords, { color, weight: 5, opacity: .9, dashArray: isMoto ? '6,5' : null }).addTo(map);
     const dist = (data.routes[0].distance / 1000).toFixed(1);
-    const dur = Math.round(data.routes[0].duration / 60);
-    showToast(`🧭 ${dist}km — khoảng ${dur} phút`);
+    const avgSpeed = isMoto ? 25 : 35;
+    const dur = Math.round((data.routes[0].distance / 1000) / avgSpeed * 60);
+    showToast(`${icon} ${dist}km — khoảng ${dur} phút`);
     map.fitBounds(routeLine.getBounds().pad(.15));
-  } catch(e) { showToast('Lỗi lấy tuyến đường'); }
+  } catch(e) {
+    console.warn('[route] OSRM error:', e);
+    // Fallback: mở Google Maps
+    const gmUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin[0]},${origin[1]}&destination=${dest[0]},${dest[1]}&travelmode=driving`;
+    showToast(`${icon} Không vẽ được tuyến — đang mở Google Maps...`);
+    setTimeout(() => window.open(gmUrl, '_blank'), 1200);
+  }
 }
 
 // ── VN2000 ──
