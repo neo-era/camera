@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <title>Quản Lý Đèn Tắt CSCC</title>
+  <title>Quản Lý Camera Trụ CSCC</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="author" content="Mai Vũ Lâm">
-  <meta name="description" content="Quản lý và báo cáo đèn chiếu sáng công cộng bị sự cố tại TP.HCM">
+  <meta name="description" content="Quản lý và kiểm tra an toàn camera lắp trên trụ chiếu sáng công cộng tại TP.HCM">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Đèn Tắt">
+  <meta name="apple-mobile-web-app-title" content="Camera CSCC">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="images/icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="images/icon-192.png">
@@ -449,9 +449,9 @@
 <div id="loginOverlay">
   <div class="login-card">
     <div class="login-head">
-      <div class="login-icon">💡</div>
-      <div class="login-appname">QUẢN LÝ ĐÈN TẮT CSCC</div>
-      <div class="login-sub">Đăng nhập để tiếp tục</div>
+      <div class="login-icon">📷</div>
+      <div class="login-appname">QUẢN LÝ CAMERA CSCC</div>
+      <div class="login-sub">Hệ thống kiểm tra an toàn camera trên trụ chiếu sáng</div>
     </div>
     <div class="login-body">
       <div class="fg">
@@ -472,9 +472,9 @@
 
 <!-- ── TOP BAR ── -->
 <header id="topBar">
-  <div class="topbar-brand"><span>💡</span>ĐÈN TẮT CSCC</div>
+  <div class="topbar-brand"><span>📷</span>CAMERA CSCC</div>
   <div class="topbar-search">
-    <input type="text" id="searchInput" placeholder="Tìm số trụ, đường, phường..." autocomplete="off"
+    <input type="text" id="searchInput" placeholder="Tìm số trụ, tuyến đường, phường..." autocomplete="off"
       onkeydown="if(event.key==='Enter')searchMarkers()">
     <button onclick="searchMarkers()">🔍</button>
   </div>
@@ -499,20 +499,14 @@
 
 <!-- ── STATS STRIP ── -->
 <div id="statsStrip">
-  <div class="stat-chip active" id="chip-1" onclick="openStatusList('1')" style="color:#ef4444">
-    <div class="dot" style="background:#ef4444"></div>LED hư <span class="cnt" id="cnt-1">0</span>
+  <div class="stat-chip active" id="chip-NGUYCO" onclick="openStatusList('NGUYCO')" style="color:#ef4444">
+    <div class="dot" style="background:#ef4444"></div>Nguy cơ <span class="cnt" id="cnt-NGUYCO">0</span>
   </div>
-  <div class="stat-chip active" id="chip-7" onclick="openStatusList('7')" style="color:#f97316">
-    <div class="dot" style="background:#f97316"></div>HPS hư <span class="cnt" id="cnt-7">0</span>
+  <div class="stat-chip active" id="chip-ANTOAN" onclick="openStatusList('ANTOAN')" style="color:#10b981">
+    <div class="dot" style="background:#10b981"></div>An toàn <span class="cnt" id="cnt-ANTOAN">0</span>
   </div>
-  <div class="stat-chip active" id="chip-5" onclick="openStatusList('5')" style="color:#7c3aed">
-    <div class="dot" style="background:#7c3aed"></div>&gt;10 ngày <span class="cnt" id="cnt-5">0</span>
-  </div>
-  <div class="stat-chip active" id="chip-3" onclick="openStatusList('3')" style="color:#10b981">
-    <div class="dot" style="background:#10b981"></div>LED BT <span class="cnt" id="cnt-3">0</span>
-  </div>
-  <div class="stat-chip active" id="chip-4" onclick="openStatusList('4')" style="color:#0ea5e9">
-    <div class="dot" style="background:#0ea5e9"></div>HPS BT <span class="cnt" id="cnt-4">0</span>
+  <div class="stat-chip active" id="chip-CHUAXULY" onclick="openStatusList('CHUAXULY')" style="color:#f59e0b">
+    <div class="dot" style="background:#f59e0b"></div>Chưa XĐ <span class="cnt" id="cnt-CHUAXULY">0</span>
   </div>
   <div class="stat-total" id="statTotal">Tổng: 0</div>
 </div>
@@ -551,7 +545,7 @@
 <div id="sidebarOverlay" onclick="closeSidebar()"></div>
 <aside id="sidebar">
   <div class="sb-header">
-    <div class="sb-header-title">💡 Quản lý đèn tắt</div>
+    <div class="sb-header-title">📷 Quản lý camera</div>
     <button class="sb-close" onclick="closeSidebar()">✕</button>
   </div>
   <div id="sbUserChip">
@@ -563,16 +557,16 @@
   </div>
   <div class="sb-body">
     <div class="sb-section">
-      <div class="sb-section-title">Lọc theo trạng thái</div>
+      <div class="sb-section-title">Lọc theo mức an toàn</div>
       <div id="filterChips"></div>
     </div>
     <div class="sb-section">
-      <div class="sb-section-title">Lọc theo loại đèn</div>
-      <div id="filterLoaiDenChips" class="filter-inline-row"></div>
+      <div class="sb-section-title">Lọc theo loại trụ</div>
+      <div id="filterLoaiTruChips" class="filter-inline-row"></div>
     </div>
     <div class="sb-section">
-      <div class="sb-section-title">Lọc theo người phát hiện</div>
-      <div id="filterNguoiChips" class="filter-inline-row"></div>
+      <div class="sb-section-title">Lọc theo tuyến đường</div>
+      <div id="filterTuyenChips" class="filter-inline-row"></div>
     </div>
     <div class="sb-section" id="clearFilterSection" style="display:none">
       <button class="sb-btn" style="color:var(--red);border-color:var(--red)" onclick="clearAllFilters()"><span class="bi">✕</span>Xóa tất cả bộ lọc</button>
@@ -580,12 +574,12 @@
     <div class="sb-section">
       <div class="sb-section-title">Hành động</div>
       <button class="sb-btn" onclick="centerOnUserLocation();closeSidebar()"><span class="bi">📍</span>Vị trí hiện tại</button>
-      <button id="sbBtnAdd" class="sb-btn" onclick="startAddMarker();closeSidebar()"><span class="bi">➕</span>Thêm đèn mới</button>
+      <button id="sbBtnAdd" class="sb-btn" onclick="startAddMarker();closeSidebar()"><span class="bi">➕</span>Thêm camera mới</button>
       <button class="sb-btn" onclick="loadDataFromSheet();closeSidebar()"><span class="bi">🔄</span>Tải lại từ Data</button>
       <button id="sbBtnImport" class="sb-btn" onclick="document.getElementById('importFileInput').click();closeSidebar()"><span class="bi">📂</span>Nhập từ file Excel</button>
       <button id="sbBtnExcel" class="sb-btn" onclick="saveMarkerData();closeSidebar()"><span class="bi">💾</span>Xuất Excel</button>
       <button id="sbBtnCad" class="sb-btn" onclick="exportMarkersToCad();closeSidebar()"><span class="bi">📐</span>Xuất CAD (.dxf)</button>
-      <button id="sbBtnReport" class="sb-btn" onclick="openReportModal();closeSidebar()"><span class="bi">📊</span>Báo cáo hàng ngày</button>
+      <button id="sbBtnReport" class="sb-btn" onclick="openReportModal();closeSidebar()"><span class="bi">📊</span>Báo cáo camera</button>
       <button class="sb-btn" onclick="window.open('huongdan.html','_blank')"><span class="bi">📖</span>Hướng dẫn sử dụng</button>
       <button class="sb-btn logout" onclick="logout()"><span class="bi">🚪</span>Đăng xuất</button>
     </div>
@@ -600,39 +594,19 @@
 <div id="markerForm" class="mpop-overlay" role="dialog" aria-modal="true">
   <div class="mpop-card" id="mpopCard">
     <div class="mpop-header" id="mpopHeader">
-      <span id="mpopTitle">Thêm đèn mới</span>
+      <span id="mpopTitle">Thêm camera mới</span>
       <button class="mpop-close" onclick="cancelMarkerPopup()">✕</button>
     </div>
     <div class="mpop-body">
       <div class="mpop-section-title">Thông tin cơ bản</div>
       <div class="form-row">
-        <div class="fg"><label>ID</label><input id="fId" type="text" placeholder="Mã tự động"></div>
-        <div class="fg"><label>Số trụ *</label><input id="fSoTru" type="text" placeholder="VD: A-123"></div>
+        <div class="fg"><label>STT</label><input id="fId" type="text" placeholder="Mã tự động"></div>
+        <div class="fg"><label>Số trụ CS *</label><input id="fSoTru" type="text" placeholder="VD: CS-123"></div>
       </div>
-      <div class="fg"><label>Tên tủ điều khiển</label><input id="fTenTu" type="text" placeholder="Tên tủ quản lý đèn này"></div>
+      <div class="fg"><label>Tên tủ điều khiển</label><input id="fTenTu" type="text" placeholder="Tên tủ quản lý camera này"></div>
       <div class="form-row">
-        <div class="fg">
-          <label>Loại đèn</label>
-          <select id="fLoaiDen">
-            <option value="">-- Chọn --</option>
-            <option value="LED">LED</option>
-            <option value="HPS">HPS</option>
-          </select>
-        </div>
-        <div class="fg"><label>Công suất (W)</label><input id="fCongSuat" type="number" placeholder="250"></div>
-      </div>
-      <div class="fg">
-        <label>Trạng thái *</label>
-        <div class="status-select-wrap">
-          <select id="fTrangThai">
-            <option value="">-- Chọn trạng thái --</option>
-            <option value="1">🔴 Đèn LED đang hư</option>
-            <option value="7">🟠 Đèn HPS đang hư</option>
-            <option value="5">🟣 Đèn hư quá 10 ngày</option>
-            <option value="3">🟢 Đèn LED sáng bình thường</option>
-            <option value="4">🔵 Đèn HPS sáng bình thường</option>
-          </select>
-        </div>
+        <div class="fg"><label>Loại trụ</label><input id="fLoaiTru" type="text" placeholder="VD: Trụ tròn 8m"></div>
+        <div class="fg"><label>Chủ đầu tư</label><input id="fChuDauTu" type="text" placeholder="UBND Quận..."></div>
       </div>
 
       <div class="mpop-section-title">Vị trí</div>
@@ -643,20 +617,62 @@
       <button class="loc-btn" onclick="setMarkerToCurrentLocation()">📍 Lấy vị trí GPS hiện tại</button>
       <div id="fCoordsText" class="coords-info">Tọa độ: —</div>
       <div class="form-row" style="margin-top:10px">
-        <div class="fg"><label>Đường</label><input id="fDuong" type="text" placeholder="Tên đường"></div>
-        <div class="fg"><label>Phường</label><input id="fPhuong" type="text" placeholder="Tên phường"></div>
+        <div class="fg"><label>Tuyến đường</label><input id="fDuong" type="text" placeholder="Tên tuyến đường"></div>
+        <div class="fg"><label>Phường / Xã</label><input id="fPhuong" type="text" placeholder="Tên phường"></div>
       </div>
+      <div class="fg"><label>Số nhà (nếu có)</label><input id="fSoNha" type="text" placeholder="Số nhà gần trụ"></div>
 
-      <div class="mpop-section-title">Sự cố</div>
+      <div class="mpop-section-title">Thông tin phát hiện</div>
       <div class="form-row">
         <div class="fg"><label>Ngày phát hiện</label><input id="fNgayPhatHien" type="date"></div>
-        <div class="fg"><label>Người phát hiện</label><input id="fNguoiPhatHien" type="text" placeholder="Tên người báo cáo"></div>
+        <div class="fg">
+          <label>Có biên bản?</label>
+          <select id="fBienBan">
+            <option value="">-- Chọn --</option>
+            <option value="Có">Có</option>
+            <option value="Không">Không</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mpop-section-title">Mức độ an toàn</div>
+      <div class="form-row">
+        <div class="fg">
+          <label>Camera cách ly với trụ đèn</label>
+          <select id="fAnToanCachLy">
+            <option value="">-- Chọn --</option>
+            <option value="Có">Có</option>
+            <option value="Không">Không</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Cáp nguồn 2 lớp vỏ bọc</label>
+          <select id="fAnToanCapNguon">
+            <option value="">-- Chọn --</option>
+            <option value="Có">Có</option>
+            <option value="Không">Không</option>
+          </select>
+        </div>
       </div>
       <div class="form-row">
-        <div class="fg"><label>Ngày sửa xong</label><input id="fNgaySua" type="date"></div>
-        <div class="fg"><label>Người sửa</label><input id="fNguoiSua" type="text" placeholder="Tên người sửa chữa"></div>
+        <div class="fg">
+          <label>Có mối nối hở</label>
+          <select id="fAnToanMoiNoi">
+            <option value="">-- Chọn --</option>
+            <option value="Có">Có (nguy cơ)</option>
+            <option value="Không">Không</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Có kẹp treo / kẹp dừng</label>
+          <select id="fAnToanKepTreo">
+            <option value="">-- Chọn --</option>
+            <option value="Có">Có</option>
+            <option value="Không">Không</option>
+          </select>
+        </div>
       </div>
-      <div class="fg"><label>Vật tư sử dụng</label><textarea id="fVatTuSua" placeholder="VD: Bóng đèn LED 250W, dây cáp 5m..."></textarea></div>
+      <div class="fg"><label>Nguyên nhân mất an toàn khác</label><textarea id="fNguyenNhanKhac" placeholder="Mô tả các nguyên nhân khác..."></textarea></div>
       <div class="fg"><label>Ghi chú</label><textarea id="fGhiChu" placeholder="Ghi chú thêm..."></textarea></div>
 
       <div class="mpop-section-title">Ảnh hiện trường</div>
@@ -674,15 +690,15 @@
 <!-- ── REPORT MODAL ── -->
 <div id="reportModal">
   <div id="reportCard">
-    <h3>📊 Báo cáo đèn hư hàng ngày</h3>
-    <p>Chọn khoảng thời gian và xuất danh sách đèn sự cố</p>
+    <h3>📊 Báo cáo camera nguy cơ</h3>
+    <p>Chọn khoảng thời gian và xuất danh sách camera có vấn đề an toàn</p>
     <div class="rpt-row">
       <div><label>Từ ngày</label><input type="text" id="rptFrom" placeholder="DD/MM/YYYY" inputmode="numeric" maxlength="10"></div>
       <div><label>Đến ngày</label><input type="text" id="rptTo" placeholder="DD/MM/YYYY" inputmode="numeric" maxlength="10"></div>
     </div>
     <div class="rpt-row">
       <div><label>Phường / Xã</label><select id="rptPhuong"><option value="">Tất cả phường</option></select></div>
-      <div><label>Người phát hiện</label><select id="rptNguoiPH"><option value="">Tất cả</option></select></div>
+      <div><label>Tuyến đường</label><select id="rptNguoiPH"><option value="">Tất cả tuyến</option></select></div>
     </div>
     <div class="rpt-preview" id="rptPreview">
       <div style="font-size:12px;color:var(--text-muted);text-align:center">Chọn ngày để xem tóm tắt</div>
@@ -701,7 +717,7 @@
   <div class="sl-header">
     <div class="sl-dot" id="slDot"></div>
     <div class="sl-title" id="slTitle">Danh sách</div>
-    <div class="sl-cnt" id="slCnt">0 đèn</div>
+    <div class="sl-cnt" id="slCnt">0 camera</div>
     <button class="sl-close" onclick="closeStatusList()">✕</button>
   </div>
   <div class="sl-body" id="slBody"></div>
@@ -716,16 +732,14 @@
 <script>
 'use strict';
 // ── CONSTANTS ──
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0YAMrbBpNdTL0cmE_1LdQ7SJzeUW0J0VHhWpv3WqW9LvLyBTP8YV2nPzuuR27pJTZ8g/exec';
-const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQC6mnGNSNDjUVzs5C4Se9Q9JQCGF9_YQRTRXewhsJhg0QDAcp6NqtxNsFl-fs8g1yyYBQEUqPhgwBv/pub?output=csv';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyASedS6bJTbj8RkAZtbur5OfpzqPvE7bFzDVDNDxMJKYQrNfbrcERvZEmT0mLfocAI/exec';
+const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTDBELhoIN7It6-__pO9Y3YAlDG9dIyBz6jiiJDb4RlKNoqQxOqlZYHmdWVkS9lTxLnvjcTJ-yjj0_s/pub?output=csv';
 const MAX_IMG_LEN = 32767;
 
 const STATUS_CONFIG = {
-  '1': { label: 'Đèn LED đang hư',          color: '#ef4444', bg: '#fee2e2', emoji: '⚡', pulse: true },
-  '3': { label: 'Đèn LED sáng bình thường',  color: '#10b981', bg: '#d1fae5', emoji: '✓', pulse: false },
-  '4': { label: 'Đèn HPS sáng bình thường',  color: '#0ea5e9', bg: '#e0f2fe', emoji: '✓', pulse: false },
-  '5': { label: 'Đèn hư quá 10 ngày',        color: '#7c3aed', bg: '#ede9fe', emoji: '!!', pulse: true },
-  '7': { label: 'Đèn HPS đang hư',           color: '#f97316', bg: '#ffedd5', emoji: '⚡', pulse: true },
+  'NGUYCO':   { label: 'Có nguy cơ mất an toàn',  color: '#ef4444', bg: '#fee2e2', emoji: '⚠', pulse: true },
+  'ANTOAN':   { label: 'An toàn',                   color: '#10b981', bg: '#d1fae5', emoji: '✓', pulse: false },
+  'CHUAXULY': { label: 'Chưa xác định an toàn',     color: '#f59e0b', bg: '#fef3c7', emoji: '?', pulse: false },
 };
 
 // ── STATE ──
@@ -739,8 +753,8 @@ let markerImageDataUrl = '', markerImagePath = '';
 let currentLocationMarker = null;
 let routeLine = null;
 let hiddenFilters = new Set();
-let filterLoaiDen = '';
-let filterNguoi = '';
+let filterLoaiTru = '';
+let filterTuyen = '';
 let toastTimer;
 let currentUser = null; // { username, displayName, role }
 
@@ -872,7 +886,7 @@ function searchMarkers() {
   hits.slice(0, 15).forEach(e => {
     const p = parseMarkerRow(e.row); const cfg = STATUS_CONFIG[String(p.trangThai)] || {};
     const li = document.createElement('li');
-    li.innerHTML = `<a href="#"><span style="color:${cfg.color||'#64748b'};font-size:16px">💡</span>
+    li.innerHTML = `<a href="#"><span style="color:${cfg.color||'#64748b'};font-size:16px">📷</span>
       <span><strong>${p.soTru || '—'}</strong> &nbsp;
       <span style="color:#64748b;font-size:11px">${p.duong || ''} ${p.phuong || ''}</span></span>
       <span style="color:${cfg.color||'#64748b'};font-size:10px;margin-left:auto;white-space:nowrap">${cfg.label||''}</span></a>`;
@@ -925,7 +939,9 @@ function parseViDate(dateStr) {
     if (p[0].length === 4) { [year, month, day] = p; }   // yyyy-mm-dd (ISO)
     else { [day, month, year] = p; }                       // dd-mm-yyyy
   } else return null;
-  const d = new Date(+year, +month - 1, +day);
+  const dd = +day, mm = +month, yy = +year < 100 ? +year + 2000 : +year;
+  if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return null;
+  const d = new Date(yy, mm - 1, dd);
   return isNaN(d) ? null : d;
 }
 function daysBetween(dateStr) {
@@ -953,25 +969,26 @@ function fromInputDate(iso) {
 
 // ── ROW SCHEMA ──
 const FIELDS = {
-  id:             [0,  'ID','id'],
-  soTru:          [1,  'Số trụ','so tru','soTru'],
-  tenTu:          [2,  'Tên tủ','ten tu','tenTu'],
-  latitude:       [3,  'latitude','lat'],
-  longitude:      [4,  'lontitude','longitude','lon','longtitude'],
-  loaiDen:        [5,  'Loại đèn','loai den','loaiDen'],
-  congSuat:       [6,  'Công suất','cong suat','congSuat'],
-  trangThai:      [7,  'Trang thai','Trạng thái','trang thai','status','trangThai'],
-  duong:          [8,  'Đường','duong'],
-  phuong:         [9,  'Phường','phuong'],
-  ngayPhatHien:   [10, 'Ngày phát hiện','ngay phat hien','ngayPhatHien'],
-  nguoiPhatHien:  [11, 'Người phát hiện','nguoi phat hien','nguoiPhatHien'],
-  ngaySua:        [12, 'Ngày sửa','ngay sua','ngaySua'],
-  nguoiSua:       [13, 'Người sửa','nguoi sua','nguoiSua'],
-  vatTuSua:       [14, 'Vật tư sửa','vat tu sua','vatTuSua'],
-  hinhAnh:        [15, 'HÌnh ảnh','Hình ảnh','hinh anh','image','hinhAnh'],
-  ghiChu:         [16, 'Ghi chú','ghi chu','ghiChu'],
-  vn2000x:        [17, 'VN2000-X','VN2000X','vn2000x'],
-  vn2000y:        [18, 'VN2000-Y','VN2000Y','vn2000y'],
+  id:              [0,  'STT','stt','id'],
+  latitude:        [1,  'Lat','latitude','lat'],
+  longitude:       [2,  'Long','lontitude','longitude','lon','longtitude'],
+  duong:           [3,  'Tuyến đường','tuyen duong','duong'],
+  tenTu:           [4,  'Tên tủ điều khiển','ten tu dieu khien','Tên tủ','tenTu'],
+  tongSoTru:       [5,  'Tổng số trụ có camera đang lắp trên trụ','tong so tru'],
+  soTru:           [6,  'Vị trí trụ (Số trụ CS)','vi tri tru','Số trụ','soTru'],
+  loaiTru:         [7,  'Loại trụ','loai tru','loaiTru'],
+  soNha:           [8,  'Địa chỉ: Số nhà\n (nếu có)','Địa chỉ: Số nhà','so nha','soNha'],
+  phuong:          [9,  'Địa chỉ: Phường\n (Xã)','Địa chỉ: Phường (Xã)','Phường','phuong'],
+  chuDauTu:        [10, 'Chủ đầu tư\n (UBND Quận, UBND phường, Tổ dân phố…)\n (nếu biết)','Chủ đầu tư','chu dau tu'],
+  ngayPhatHien:    [11, 'Ngày phát hiện','ngay phat hien','ngayPhatHien'],
+  bienBan:         [12, 'Biên bản báo cáo sự cố/Biên bản ghi nhận hiện trường (có/không)','bien ban','bienBan'],
+  anToanCachLy:    [13, 'Mức độ an toàn: Camera đã được cách ly với trụ đèn','anToanCachLy'],
+  anToanCapNguon:  [14, 'Mức độ an toàn: Cáp nguồn 2 lớp vỏ bọc','anToanCapNguon'],
+  anToanMoiNoi:    [15, 'Mức độ an toàn: Có mối nối hở','anToanMoiNoi'],
+  anToanKepTreo:   [16, 'Mức độ an toàn: Có kẹp treo, kẹp dừng cố định cáp','anToanKepTreo'],
+  nguyenNhanKhac:  [17, 'Các nguyên nhân gây mất an toàn khác','nguyen nhan khac','nguyenNhanKhac'],
+  hinhAnh:         [18, 'Hình ảnh','HÌnh ảnh','hinh anh','image','hinhAnh'],
+  ghiChu:          [19, 'Ghi chú','ghi chu','ghiChu'],
 };
 
 function getVal(row, keys, fb = '') {
@@ -992,18 +1009,30 @@ function getVal(row, keys, fb = '') {
 
 function parseRow(row) {
   const g = k => String(getVal(row, FIELDS[k], '') || '').trim();
+  const anToanCachLy   = g('anToanCachLy');
+  const anToanCapNguon = g('anToanCapNguon');
+  const anToanMoiNoi   = g('anToanMoiNoi');
+  const anToanKepTreo  = g('anToanKepTreo');
+  const hasData = anToanCachLy || anToanCapNguon || anToanMoiNoi || anToanKepTreo;
+  let trangThai = 'CHUAXULY';
+  if (hasData) {
+    const unsafe = anToanCachLy === 'Không' || anToanCapNguon === 'Không' ||
+                   anToanMoiNoi === 'Có'    || anToanKepTreo  === 'Không';
+    trangThai = unsafe ? 'NGUYCO' : 'ANTOAN';
+  }
   return {
     id: g('id'), soTru: g('soTru'), tenTu: g('tenTu'),
-    lat: parseFloat(getVal(row, FIELDS.latitude, null)),
-    lon: parseFloat(getVal(row, FIELDS.longitude, null)),
-    loaiDen: g('loaiDen'), congSuat: g('congSuat'), trangThai: g('trangThai'),
+    lat: (() => { const v = parseFloat(String(getVal(row, FIELDS.latitude,  '')||'').replace(',','.')); return isFinite(v) && Math.abs(v) >  90 ? v/1e6 : v; })(),
+    lon: (() => { const v = parseFloat(String(getVal(row, FIELDS.longitude, '')||'').replace(',','.')); return isFinite(v) && Math.abs(v) > 180 ? v/1e6 : v; })(),
     duong: g('duong'), phuong: g('phuong'),
+    loaiTru: g('loaiTru'), soNha: g('soNha'), chuDauTu: g('chuDauTu'),
+    tongSoTru: g('tongSoTru'),
     ngayPhatHien: parseDate(getVal(row, FIELDS.ngayPhatHien, '')),
-    nguoiPhatHien: g('nguoiPhatHien'),
-    ngaySua: parseDate(getVal(row, FIELDS.ngaySua, '')),
-    nguoiSua: g('nguoiSua'),
-    vatTuSua: g('vatTuSua'), hinhAnh: g('hinhAnh'), ghiChu: g('ghiChu'),
-    vn2000x: g('vn2000x'), vn2000y: g('vn2000y'),
+    bienBan: g('bienBan'),
+    anToanCachLy, anToanCapNguon, anToanMoiNoi, anToanKepTreo,
+    nguyenNhanKhac: g('nguyenNhanKhac'),
+    hinhAnh: g('hinhAnh'), ghiChu: g('ghiChu'),
+    trangThai,
   };
 }
 function parseMarkerRow(row) { return parseRow(row); }
@@ -1032,8 +1061,9 @@ function applyFieldsToRow(row, updates) {
 
 function rowToArray(row) {
   const p = parseRow(row);
-  return [p.id,p.soTru,p.tenTu,p.lat,p.lon,p.loaiDen,p.congSuat,p.trangThai,p.duong,p.phuong,
-          p.ngayPhatHien,p.nguoiPhatHien,p.ngaySua,p.nguoiSua,p.vatTuSua,p.hinhAnh,p.ghiChu,p.vn2000x,p.vn2000y];
+  return [p.id,p.lat,p.lon,p.duong,p.tenTu,p.tongSoTru,p.soTru,p.loaiTru,p.soNha,p.phuong,
+          p.chuDauTu,p.ngayPhatHien,p.bienBan,p.anToanCachLy,p.anToanCapNguon,
+          p.anToanMoiNoi,p.anToanKepTreo,p.nguyenNhanKhac,p.hinhAnh,p.ghiChu];
 }
 
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/neo-era/dentat/main/';
@@ -1079,7 +1109,7 @@ async function uploadImageViaGas(dataUrl, soTru) {
   let data;
   try { data = JSON.parse(text); } catch(e) { throw new Error('GAS trả về không phải JSON: ' + text.slice(0, 200)); }
   if (data.status !== 'ok') throw new Error(data.message || 'Upload thất bại');
-  return data.path;
+  return GITHUB_RAW_BASE + data.path;
 }
 
 // ── POPUP CONTENT ──
@@ -1088,32 +1118,39 @@ function createPopupContent(row, rowIndex) {
   const cfg = STATUS_CONFIG[p.trangThai] || { label: 'Không xác định', color: '#94a3b8', bg: '#f1f5f9', emoji: '❓' };
   const imgUrl = normalizeImagePath(p.hinhAnh);
   const avatarHtml = imgUrl
-    ? `<img class="pc-avatar" src="${imgUrl}" onclick="window.open('${imgUrl}','_blank')" title="Xem ảnh đầy đủ" onerror="this.outerHTML='<div class=\\'pc-avatar-ph\\'>💡</div>'">`
-    : `<div class="pc-avatar-ph">💡</div>`;
+    ? `<img class="pc-avatar" src="${imgUrl}" onclick="window.open('${imgUrl}','_blank')" title="Xem ảnh đầy đủ" onerror="this.outerHTML='<div class=\\'pc-avatar-ph\\'>📷</div>'">`
+    : `<div class="pc-avatar-ph">📷</div>`;
   const days = daysBetween(p.ngayPhatHien);
-  const broken = ['1','5','7'].includes(p.trangThai);
-  const daysHtml = broken && days !== null
-    ? `<div class="pc-days" style="background:${cfg.bg};color:${cfg.color}">⏱ ${days <= 0 ? 'Hôm nay' : days + ' ngày chưa sửa'}</div>`
-    : (p.ngaySua ? `<div class="pc-days" style="background:#d1fae5;color:#065f46">✅ Đã sửa ${p.ngaySua}</div>` : '');
+  const daysHtml = days !== null
+    ? `<div class="pc-days" style="background:${cfg.bg};color:${cfg.color}">⏱ ${days <= 0 ? 'Hôm nay' : days + ' ngày trước'}</div>`
+    : '';
   const coordStr = Number.isFinite(p.lat) && Number.isFinite(p.lon) ? `${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}` : '—';
+
+  const safeIcon = v => v === 'Có' ? '✅' : v === 'Không' ? '❌' : '—';
   const rows = [];
-  if (p.loaiDen || p.congSuat) rows.push(`<div class="pc-row"><span class="pi">💡</span><span class="pk">Loại đèn</span><span class="pv">${[p.loaiDen, p.congSuat ? p.congSuat+'W' : ''].filter(Boolean).join(' · ')}</span></div>`);
+  if (p.loaiTru) rows.push(`<div class="pc-row"><span class="pi">🔩</span><span class="pk">Loại trụ</span><span class="pv">${p.loaiTru}</span></div>`);
   if (p.tenTu) rows.push(`<div class="pc-row"><span class="pi">🗄</span><span class="pk">Tủ điều khiển</span><span class="pv">${p.tenTu}</span></div>`);
-  if (p.duong || p.phuong) rows.push(`<div class="pc-row"><span class="pi">📍</span><span class="pk">Địa chỉ</span><span class="pv">${[p.duong, p.phuong].filter(Boolean).join(', ')}</span></div>`);
-  if (p.ngayPhatHien || p.nguoiPhatHien) rows.push(`<div class="pc-row"><span class="pi">🗓</span><span class="pk">Phát hiện</span><span class="pv">${[p.ngayPhatHien, p.nguoiPhatHien].filter(Boolean).join(' · ')}</span></div>`);
-  if (p.ngaySua || p.nguoiSua) rows.push(`<div class="pc-row"><span class="pi">🔨</span><span class="pk">Đã sửa</span><span class="pv">${[p.ngaySua, p.nguoiSua].filter(Boolean).join(' · ')}</span></div>`);
-  if (p.vatTuSua) rows.push(`<div class="pc-row"><span class="pi">🔧</span><span class="pk">Vật tư</span><span class="pv">${p.vatTuSua}</span></div>`);
+  if (p.duong || p.phuong) rows.push(`<div class="pc-row"><span class="pi">📍</span><span class="pk">Địa chỉ</span><span class="pv">${[[p.soNha, p.duong].filter(Boolean).join(' '), p.phuong].filter(Boolean).join(', ')}</span></div>`);
+  if (p.chuDauTu) rows.push(`<div class="pc-row"><span class="pi">🏛</span><span class="pk">Chủ đầu tư</span><span class="pv">${p.chuDauTu}</span></div>`);
+  if (p.ngayPhatHien) rows.push(`<div class="pc-row"><span class="pi">🗓</span><span class="pk">Phát hiện</span><span class="pv">${p.ngayPhatHien}${p.bienBan ? ' · Biên bản: ' + p.bienBan : ''}</span></div>`);
+  if (p.anToanCachLy || p.anToanCapNguon || p.anToanMoiNoi || p.anToanKepTreo) {
+    rows.push(`<div class="pc-row"><span class="pi">🛡</span><span class="pk">An toàn</span><span class="pv" style="font-size:11px">
+      Cách ly: ${safeIcon(p.anToanCachLy)} · Cáp 2 lớp: ${safeIcon(p.anToanCapNguon)} · Nối hở: ${p.anToanMoiNoi === 'Có' ? '❌' : p.anToanMoiNoi === 'Không' ? '✅' : '—'} · Kẹp treo: ${safeIcon(p.anToanKepTreo)}
+    </span></div>`);
+  }
+  if (p.nguyenNhanKhac) rows.push(`<div class="pc-row"><span class="pi">⚡</span><span class="pk">Nguyên nhân</span><span class="pv">${p.nguyenNhanKhac}</span></div>`);
   if (p.ghiChu) rows.push(`<div class="pc-row"><span class="pi">📝</span><span class="pk">Ghi chú</span><span class="pv">${p.ghiChu}</span></div>`);
 
   const hasRoute = Number.isFinite(p.lat);
   const hasEdit  = Number.isInteger(rowIndex);
-  const hasFix   = broken && hasEdit;
+  const isUnsafe = p.trangThai === 'NGUYCO';
+  const hasFix   = isUnsafe && hasEdit;
   const btnCount = (hasRoute ? 1 : 0) + (hasEdit ? 1 : 0) + (hasFix ? 1 : 0);
   const gridClass = btnCount >= 3 ? 'three' : btnCount === 2 ? 'two' : 'one';
 
   const routeBtn = hasRoute ? `<button class="pc-btn route" onclick="routeToMarker(${rowIndex})">🧭 Đi đến</button>` : '';
   const editBtn  = hasEdit  ? `<button class="pc-btn edit"  onclick="openEditPopup(${rowIndex})">✏️ Chỉnh sửa</button>` : '';
-  const fixBtn   = hasFix   ? `<button class="pc-btn fix"   onclick="quickFix(${rowIndex});this.closest('.leaflet-popup').remove()">✅ Đã sửa</button>` : '';
+  const fixBtn   = hasFix   ? `<button class="pc-btn fix"   onclick="quickFix(${rowIndex});this.closest('.leaflet-popup').remove()">✅ Đã xử lý</button>` : '';
 
   return `<div class="pc">
     <div class="pc-topbar" style="background:${cfg.color}"></div>
@@ -1121,7 +1158,7 @@ function createPopupContent(row, rowIndex) {
       ${avatarHtml}
       <div class="pc-meta">
         <div class="pc-name">${p.soTru || 'Chưa có số trụ'}</div>
-        ${p.id ? `<div class="pc-id">ID: ${p.id}</div>` : ''}
+        ${p.id ? `<div class="pc-id">STT: ${p.id}</div>` : ''}
         <div class="pc-badge" style="background:${cfg.bg};color:${cfg.color}">${cfg.emoji} ${cfg.label}</div>
         ${daysHtml}
       </div>
@@ -1171,13 +1208,14 @@ function addMarkerRow(row, idx) {
   }
   const icon = createStatusIcon(p.trangThai);
   const marker = L.marker([p.lat, p.lon], { icon });
-  const entry = { lat: p.lat, lon: p.lon, name: p.soTru, marker, row, rowIndex: idx, labelMarker: null };
-  marker.bindPopup(() => createPopupContent(entry.row, idx), { maxWidth: 320, minWidth: 250 });
+  const label = p.soTru || p.id;
+  const entry = { lat: p.lat, lon: p.lon, name: label, marker, row, rowIndex: idx, labelMarker: null };
+  marker.bindPopup(() => createPopupContent(entry.row, idx), { maxWidth: 340, minWidth: 260 });
   marker.on('dblclick', () => openEditPopup(idx));
   markersCluster.addLayer(marker);
-  if (p.soTru) {
+  if (label) {
     entry.labelMarker = L.marker([p.lat, p.lon], {
-      icon: L.divIcon({ className: 'custom-label', html: `<div>${p.soTru}</div>`, iconSize: [80, 16], iconAnchor: [40, 22] })
+      icon: L.divIcon({ className: 'custom-label', html: `<div>${label}</div>`, iconSize: [80, 16], iconAnchor: [40, 22] })
     }).addTo(labelLayerGroup);
   }
   markers[idx] = entry;
@@ -1209,9 +1247,9 @@ function applyFilter() {
     if (!entry) return;
     const p = parseRow(entry.row);
     const hiddenByStatus = hiddenFilters.has(String(p.trangThai));
-    const hiddenByLoai = filterLoaiDen !== '' && (p.loaiDen || '').toUpperCase() !== filterLoaiDen;
-    const hiddenByNguoi = filterNguoi !== '' && normalizeText(p.nguoiPhatHien || '') !== normalizeText(filterNguoi);
-    const hidden = hiddenByStatus || hiddenByLoai || hiddenByNguoi;
+    const hiddenByLoai = filterLoaiTru !== '' && normalizeText(p.loaiTru || '') !== normalizeText(filterLoaiTru);
+    const hiddenByTuyen = filterTuyen !== '' && normalizeText(p.duong || '') !== normalizeText(filterTuyen);
+    const hidden = hiddenByStatus || hiddenByLoai || hiddenByTuyen;
     if (hidden) {
       markersCluster.removeLayer(entry.marker);
       if (entry.labelMarker) labelLayerGroup.removeLayer(entry.labelMarker);
@@ -1230,7 +1268,7 @@ function updateStats() {
     if (chip) chip.classList.toggle('dimmed', hiddenFilters.has(s));
   });
   const total = Object.values(counts).reduce((a,b)=>a+b,0);
-  document.getElementById('statTotal').textContent = `Tổng: ${total}`;
+  document.getElementById('statTotal').textContent = `Tổng: ${total} camera`;
 }
 function buildFilterChips() {
   const counts = {}; Object.keys(STATUS_CONFIG).forEach(k => counts[k] = 0);
@@ -1256,44 +1294,45 @@ function buildLegend() {
   ).join('');
 }
 function buildExtraFilters() {
-  // Loại đèn
-  const loaiWrap = document.getElementById('filterLoaiDenChips');
+  // Loại trụ
+  const loaiWrap = document.getElementById('filterLoaiTruChips');
   if (loaiWrap) {
     loaiWrap.innerHTML = '';
-    [['', 'Tất cả', '#64748b'], ['LED', 'LED', '#10b981'], ['HPS', 'HPS', '#f97316']].forEach(([val, label, color]) => {
-      const active = filterLoaiDen === val;
+    const loais = [...new Set(loadedData.map(r => (parseRow(r).loaiTru || '').trim()).filter(Boolean))].sort();
+    [['', 'Tất cả', '#64748b'], ...loais.map(v => [v, v, '#0ea5e9'])].forEach(([val, lbl, color]) => {
+      const active = filterLoaiTru === val;
       const el = document.createElement('button');
       el.className = 'filter-chip' + (active ? ' active' : '');
       el.style.color = active ? color : '';
-      el.textContent = label;
-      el.onclick = () => { filterLoaiDen = val; applyFilter(); buildExtraFilters(); updateStats(); };
+      el.textContent = lbl;
+      el.onclick = () => { filterLoaiTru = val; applyFilter(); buildExtraFilters(); updateStats(); };
       loaiWrap.appendChild(el);
     });
   }
-  // Người phát hiện
-  const nguoiWrap = document.getElementById('filterNguoiChips');
-  if (nguoiWrap) {
-    nguoiWrap.innerHTML = '';
-    const names = [...new Set(loadedData.map(r => (parseRow(r).nguoiPhatHien || '').trim()).filter(Boolean))].sort();
-    [['', 'Tất cả'], ...names.map(n => [n, n])].forEach(([val, label]) => {
-      const active = filterNguoi === val;
+  // Tuyến đường
+  const tuyenWrap = document.getElementById('filterTuyenChips');
+  if (tuyenWrap) {
+    tuyenWrap.innerHTML = '';
+    const tuyens = [...new Set(loadedData.map(r => (parseRow(r).duong || '').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi'));
+    [['', 'Tất cả'], ...tuyens.map(v => [v, v])].forEach(([val, lbl]) => {
+      const active = filterTuyen === val;
       const el = document.createElement('button');
       el.className = 'filter-chip' + (active ? ' active' : '');
       el.style.color = active ? 'var(--sky)' : '';
-      el.textContent = label;
-      el.onclick = () => { filterNguoi = val; applyFilter(); buildExtraFilters(); updateStats(); };
-      nguoiWrap.appendChild(el);
+      el.textContent = lbl;
+      el.onclick = () => { filterTuyen = val; applyFilter(); buildExtraFilters(); updateStats(); };
+      tuyenWrap.appendChild(el);
     });
   }
   // Nút xóa bộ lọc
-  const hasFilter = hiddenFilters.size > 0 || filterLoaiDen !== '' || filterNguoi !== '';
+  const hasFilter = hiddenFilters.size > 0 || filterLoaiTru !== '' || filterTuyen !== '';
   const clearSec = document.getElementById('clearFilterSection');
   if (clearSec) clearSec.style.display = hasFilter ? '' : 'none';
 }
 function clearAllFilters() {
   hiddenFilters.clear();
-  filterLoaiDen = '';
-  filterNguoi = '';
+  filterLoaiTru = '';
+  filterTuyen = '';
   applyFilter();
   updateStats();
   buildFilterChips();
@@ -1307,20 +1346,19 @@ function openStatusList(status) {
   document.getElementById('slTitle').textContent = cfg.label;
 
   const items = markers.filter(Boolean).filter(e => String(parseRow(e.row).trangThai) === String(status));
-  document.getElementById('slCnt').textContent = `${items.length} đèn`;
+  document.getElementById('slCnt').textContent = `${items.length} camera`;
 
   const body = document.getElementById('slBody');
   if (!items.length) {
-    body.innerHTML = `<div class="sl-empty">💡 Không có đèn nào trong trạng thái này</div>`;
+    body.innerHTML = `<div class="sl-empty">📷 Không có camera nào trong trạng thái này</div>`;
   } else {
     body.innerHTML = items.map(entry => {
       const p = parseRow(entry.row);
       const days = daysBetween(p.ngayPhatHien);
-      const broken = ['1','5','7'].includes(String(p.trangThai));
-      const badge = broken && days !== null
+      const badge = days !== null
         ? `<span class="sl-badge" style="background:${cfg.bg};color:${cfg.color}">${days <= 0 ? 'Hôm nay' : days + ' ngày'}</span>`
-        : (p.ngaySua ? `<span class="sl-badge" style="background:#d1fae5;color:#065f46">Đã sửa</span>` : '');
-      const addr = [p.duong, p.phuong].filter(Boolean).join(', ') || 'Chưa có địa chỉ';
+        : '';
+      const addr = [[p.soNha, p.duong].filter(Boolean).join(' '), p.phuong].filter(Boolean).join(', ') || 'Chưa có địa chỉ';
       const tenTu = p.tenTu ? ` · Tủ: ${p.tenTu}` : '';
       return `<div class="sl-item" style="border-left-color:${cfg.color}" onclick="flyToEntry(${entry.rowIndex})">
         <div class="sl-icon" style="background:${cfg.bg}">${cfg.emoji}</div>
@@ -1362,12 +1400,12 @@ function processFile(event) {
   reader.onload = ev => {
     try {
       const wb = XLSX.read(ev.target.result, { type: 'array' });
-      let data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+      let data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '', raw: false });
       data = data.filter(r => r && Object.values(r).some(v => v !== null && v !== ''));
       if (!data.length) { showToast('❌ File không có dữ liệu hợp lệ'); return; }
       loadedData = data;
       addMarkersToMap(loadedData);
-      showToast(`✅ Đã nhập ${data.length} đèn từ ${file.name}`);
+      showToast(`✅ Đã nhập ${data.length} camera từ ${file.name}`);
     } catch(e) {
       showToast('❌ Không đọc được file: ' + e.message);
     }
@@ -1384,7 +1422,7 @@ async function loadDataFromSheet() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const csv = await res.text();
     const wb = XLSX.read(csv, { type: 'string' });
-    let data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+    let data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '', raw: false });
     data = data.filter(r => r && Object.values(r).some(v => v !== null && v !== ''));
     console.log('[dentat] Sheet headers:', data[0] ? Object.keys(data[0]) : 'no data');
     console.log('[dentat] Loaded rows:', data.length);
@@ -1394,7 +1432,7 @@ async function loadDataFromSheet() {
     }
     loadedData = data;
     addMarkersToMap(loadedData);
-    showToast(`✅ Đã tải ${data.length} đèn từ Data`);
+    showToast(`✅ Đã tải ${data.length} camera từ Data`);
   } catch(e) {
     console.error('[dentat] Load error:', e);
     showToast('❌ Không tải được dữ liệu: ' + e.message);
@@ -1406,7 +1444,7 @@ function startAddMarker() {
   if (isDemoUser()) { denyDemo(); return; }
   if (addMarkerMode) { disableAddMode(); return; }
   enableAddMode();
-  const useGPS = confirm('Dùng vị trí GPS để thêm đèn?\nOK = dùng GPS  |  Hủy = nhấp vào bản đồ');
+  const useGPS = confirm('Dùng vị trí GPS để thêm camera?\nOK = dùng GPS  |  Hủy = nhấp vào bản đồ');
   if (useGPS) {
     if (!navigator.geolocation) { showToast('Trình duyệt không hỗ trợ GPS'); disableAddMode(); return; }
     navigator.geolocation.getCurrentPosition(
@@ -1421,7 +1459,7 @@ function enableAddMode() {
   const lbl = document.getElementById('addMarkerLabel');
   icon.textContent = '🛑'; icon.style.background = 'linear-gradient(135deg,#ef4444,#b91c1c)';
   lbl.textContent = 'Dừng';
-  showToast('Nhấp vào bản đồ để đặt vị trí đèn');
+  showToast('Nhấp vào bản đồ để đặt vị trí camera');
 }
 function disableAddMode() {
   addMarkerMode = false; pendingNewMarker = false;
@@ -1443,40 +1481,39 @@ function openEditPopup(index) {
 }
 
 function fillForm(row, lat, lon) {
-  document.getElementById('mpopTitle').textContent = row ? `✏️ Sửa: ${parseRow(row).soTru || 'đèn'}` : '➕ Thêm đèn mới';
+  document.getElementById('mpopTitle').textContent = row ? `✏️ Sửa: ${parseRow(row).soTru || 'camera'}` : '➕ Thêm camera mới';
   if (row) {
     const p = parseRow(row);
     document.getElementById('fId').value = p.id;
     document.getElementById('fSoTru').value = p.soTru;
     document.getElementById('fTenTu').value = p.tenTu;
-    document.getElementById('fLoaiDen').value = p.loaiDen;
-    document.getElementById('fCongSuat').value = p.congSuat;
-    document.getElementById('fTrangThai').value = p.trangThai;
+    document.getElementById('fLoaiTru').value = p.loaiTru;
+    document.getElementById('fChuDauTu').value = p.chuDauTu;
     document.getElementById('fLat').value = Number.isFinite(p.lat) ? p.lat : '';
     document.getElementById('fLon').value = Number.isFinite(p.lon) ? p.lon : '';
     document.getElementById('fDuong').value = p.duong;
     document.getElementById('fPhuong').value = p.phuong;
+    document.getElementById('fSoNha').value = p.soNha;
     document.getElementById('fNgayPhatHien').value = toInputDate(p.ngayPhatHien);
-    document.getElementById('fNguoiPhatHien').value = p.nguoiPhatHien;
-    document.getElementById('fNgaySua').value = toInputDate(p.ngaySua);
-    document.getElementById('fNguoiSua').value = p.nguoiSua;
-    document.getElementById('fVatTuSua').value = p.vatTuSua;
+    document.getElementById('fBienBan').value = p.bienBan;
+    document.getElementById('fAnToanCachLy').value = p.anToanCachLy;
+    document.getElementById('fAnToanCapNguon').value = p.anToanCapNguon;
+    document.getElementById('fAnToanMoiNoi').value = p.anToanMoiNoi;
+    document.getElementById('fAnToanKepTreo').value = p.anToanKepTreo;
+    document.getElementById('fNguyenNhanKhac').value = p.nguyenNhanKhac;
     document.getElementById('fGhiChu').value = p.ghiChu;
     document.getElementById('fCoordsText').textContent = Number.isFinite(p.lat) ? `Tọa độ: ${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}` : 'Tọa độ: —';
     markerImageDataUrl = p.hinhAnh; markerImagePath = normalizeImagePath(p.hinhAnh);
     document.getElementById('fImagePreview').innerHTML = markerImageDataUrl ? `<img src="${markerImageDataUrl}" style="max-height:80px;border-radius:8px">` : '';
   } else {
     const maxId = loadedData.reduce((m, r) => { const n = parseInt(parseRow(r).id); return Number.isFinite(n) ? Math.max(m, n) : m; }, 0);
-    ['fSoTru','fTenTu','fCongSuat','fDuong','fPhuong','fNguoiPhatHien','fNguoiSua','fVatTuSua','fGhiChu'].forEach(id => document.getElementById(id).value = '');
+    ['fSoTru','fTenTu','fLoaiTru','fChuDauTu','fDuong','fPhuong','fSoNha','fNguyenNhanKhac','fGhiChu'].forEach(id => document.getElementById(id).value = '');
+    ['fBienBan','fAnToanCachLy','fAnToanCapNguon','fAnToanMoiNoi','fAnToanKepTreo'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('fId').value = maxId + 1;
-    document.getElementById('fLoaiDen').value = '';
-    document.getElementById('fTrangThai').value = '1';
     document.getElementById('fLat').value = lat ?? '';
     document.getElementById('fLon').value = lon ?? '';
     document.getElementById('fNgayPhatHien').value = new Date().toISOString().split('T')[0];
-    document.getElementById('fNgaySua').value = '';
     document.getElementById('fCoordsText').textContent = lat != null ? `Tọa độ: ${lat.toFixed(6)}, ${lon.toFixed(6)}` : 'Tọa độ: —';
-    if (currentUser) document.getElementById('fNguoiPhatHien').value = currentUser.displayName || currentUser.username;
     markerImageDataUrl = ''; markerImagePath = '';
     document.getElementById('fImagePreview').innerHTML = '';
     if (Number.isFinite(lat) && Number.isFinite(lon)) reverseGeocode(lat, lon);
@@ -1495,14 +1532,38 @@ function cancelMarkerPopup() { hideForm(); }
 // ── REVERSE GEOCODE ──
 async function reverseGeocode(lat, lon) {
   try {
-    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=vi`);
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&zoom=18&addressdetails=1&lat=${lat}&lon=${lon}&accept-language=vi`);
     const d = await r.json();
     const a = d.address || {};
-    const duong = a.road || a.pedestrian || a.footway || a.path || '';
+    const soNha = a.house_number || '';
+    const duong  = a.road || a.pedestrian || a.footway || a.path || '';
     const phuong = a.suburb || a.quarter || a.neighbourhood || a.village || a.county || '';
-    if (duong) document.getElementById('fDuong').value = duong;
+    document.getElementById('fSoNha').value  = soNha;
+    if (duong)  document.getElementById('fDuong').value  = duong;
     if (phuong) document.getElementById('fPhuong').value = phuong;
-    if (duong || phuong) showToast('📍 Đã điền tên đường/phường tự động');
+
+    // Nếu Nominatim không trả về số nhà, thử tìm địa chỉ gần nhất
+    if (!soNha && duong) {
+      try {
+        const sr = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=10&accept-language=vi` +
+          `&q=${encodeURIComponent(duong + ', ' + (phuong || 'Hồ Chí Minh'))}`
+        );
+        const results = await sr.json();
+        // Tìm kết quả gần tọa độ nhất có house_number
+        let best = null, bestDist = Infinity;
+        for (const item of results) {
+          if (!item.address || !item.address.house_number) continue;
+          const dlat = parseFloat(item.lat) - lat;
+          const dlon = parseFloat(item.lon) - lon;
+          const dist = Math.sqrt(dlat*dlat + dlon*dlon);
+          if (dist < bestDist) { bestDist = dist; best = item; }
+        }
+        if (best) document.getElementById('fSoNha').value = best.address.house_number;
+      } catch(e2) {}
+    }
+
+    if (soNha || duong || phuong) showToast('📍 Đã điền địa chỉ tự động');
   } catch(e) {}
 }
 
@@ -1546,9 +1607,7 @@ function centerOnUserLocation() {
 async function saveMarkerPopup() {
   if (isDemoUser()) { denyDemo(); return; }
   const soTru = document.getElementById('fSoTru').value.trim();
-  const trangThai = document.getElementById('fTrangThai').value;
-  if (!soTru) { showToast('Vui lòng nhập số trụ'); return; }
-  if (!trangThai) { showToast('Vui lòng chọn trạng thái'); return; }
+  if (!soTru) { showToast('Vui lòng nhập số trụ CS'); return; }
   const btn = document.getElementById('mpopSaveBtn');
   const orig = btn.textContent;
 
@@ -1568,27 +1627,26 @@ async function saveMarkerPopup() {
   // 2. Build rowData
   const lat = parseFloat(document.getElementById('fLat').value);
   const lon = parseFloat(document.getElementById('fLon').value);
-  const vn = (Number.isFinite(lat) && Number.isFinite(lon)) ? convertLatLonToVn2000(lat, lon) : { x: '', y: '' };
   const rowData = {
     action: 'full_update',
     id: document.getElementById('fId').value.trim(),
     soTru, tenTu: document.getElementById('fTenTu').value.trim(),
     lat: Number.isFinite(lat) ? lat : '',
     lon: Number.isFinite(lon) ? lon : '',
-    loaiDen: document.getElementById('fLoaiDen').value,
-    congSuat: document.getElementById('fCongSuat').value.trim(),
-    trangThai,
+    loaiTru: document.getElementById('fLoaiTru').value.trim(),
+    chuDauTu: document.getElementById('fChuDauTu').value.trim(),
     duong: document.getElementById('fDuong').value.trim(),
     phuong: document.getElementById('fPhuong').value.trim(),
+    soNha: document.getElementById('fSoNha').value.trim(),
     ngayPhatHien: fromInputDate(document.getElementById('fNgayPhatHien').value),
-    nguoiPhatHien: document.getElementById('fNguoiPhatHien').value.trim(),
-    ngaySua: fromInputDate(document.getElementById('fNgaySua').value),
-    nguoiSua: document.getElementById('fNguoiSua').value.trim(),
-    vatTuSua: document.getElementById('fVatTuSua').value.trim(),
+    bienBan: document.getElementById('fBienBan').value,
+    anToanCachLy: document.getElementById('fAnToanCachLy').value,
+    anToanCapNguon: document.getElementById('fAnToanCapNguon').value,
+    anToanMoiNoi: document.getElementById('fAnToanMoiNoi').value,
+    anToanKepTreo: document.getElementById('fAnToanKepTreo').value,
+    nguyenNhanKhac: document.getElementById('fNguyenNhanKhac').value.trim(),
     hinhAnh: finalImagePath || '',
     ghiChu: document.getElementById('fGhiChu').value.trim(),
-    vn2000x: vn.x ? Math.round(vn.x) : '',
-    vn2000y: vn.y ? Math.round(vn.y) : '',
   };
 
   btn.disabled = true; btn.textContent = '⌛ Đang lưu...';
@@ -1606,7 +1664,7 @@ async function saveMarkerPopup() {
         entry.row = payload; entry.lat = lat; entry.lon = lon; entry.name = soTru;
         markersCluster.removeLayer(entry.marker);
         if (entry.labelMarker) labelLayerGroup.removeLayer(entry.labelMarker);
-        const newIcon = createStatusIcon(trangThai);
+        const newIcon = createStatusIcon(parseRow(payload).trangThai);
         entry.marker.setLatLng([lat, lon]); entry.marker.setIcon(newIcon);
         entry.marker.setPopupContent(createPopupContent(payload, editingIndex));
         markersCluster.addLayer(entry.marker);
@@ -1630,27 +1688,27 @@ async function saveMarkerPopup() {
   }
 }
 
-// ── QUICK FIX ──
+// ── QUICK FIX (đánh dấu đã xử lý an toàn) ──
 async function quickFix(index) {
   if (isDemoUser()) { denyDemo(); return; }
   if (index < 0 || index >= loadedData.length) return;
   const p = parseRow(loadedData[index]);
-  const newStatus = p.loaiDen === 'HPS' ? '4' : '3';
-  const today = todayStr();
   const rowData = { ...loadedData[index] };
-  applyFieldsToRow(rowData, { trangThai: newStatus, ngaySua: today });
+  applyFieldsToRow(rowData, {
+    anToanCachLy: 'Có', anToanCapNguon: 'Có',
+    anToanMoiNoi: 'Không', anToanKepTreo: 'Có',
+  });
   rowData.action = 'full_update';
   loadedData[index] = rowData;
   const entry = markers[index];
   if (entry) {
     entry.row = rowData;
-    entry.marker.setIcon(createStatusIcon(newStatus));
+    entry.marker.setIcon(createStatusIcon('ANTOAN'));
     entry.marker.closePopup();
   }
   applyFilter(); updateStats(); buildFilterChips();
-  showToast(`✅ Đã đánh dấu ${p.soTru} sửa xong hôm nay`);
+  showToast(`✅ Đã đánh dấu ${p.soTru} an toàn`);
   try {
-    console.log('[GAS quickFix payload]', JSON.stringify(rowData, null, 2));
     await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rowData) });
   } catch(e) {}
 }
@@ -1693,18 +1751,18 @@ function handleImageFile(e) {
 function saveMarkerData() {
   if (isDemoUser()) { denyDemo(); return; }
   if (!loadedData.length) { showToast('Không có dữ liệu để lưu'); return; }
-  const header = ['ID','Số trụ','Tên tủ','latitude','lontitude','Loại đèn','Công suất','Trang thai','Đường','Phường','Ngày phát hiện','Người phát hiện','Ngày sửa','Người sửa','Vật tư sửa','HÌnh ảnh','Ghi chú','VN2000-X','VN2000-Y'];
+  const header = ['STT','Lat','Long','Tuyến đường','Tên tủ điều khiển','Tổng số trụ','Số trụ CS','Loại trụ','Số nhà','Phường','Chủ đầu tư','Ngày phát hiện','Biên bản','Camera cách ly','Cáp 2 lớp','Mối nối hở','Kẹp treo','Nguyên nhân khác','Hình ảnh','Ghi chú'];
   const ws = XLSX.utils.aoa_to_sheet([header, ...loadedData.map(rowToArray)]);
-  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Danh sách đèn');
-  XLSX.writeFile(wb, `dentat-${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.xlsx`);
-  showToast(`✅ Đã xuất ${loadedData.length} đèn ra Excel`);
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Danh sách camera');
+  XLSX.writeFile(wb, `camera-cscc-${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.xlsx`);
+  showToast(`✅ Đã xuất ${loadedData.length} camera ra Excel`);
 }
 
 // ── DAILY REPORT ──
 function populateReportFilters() {
   const norm = v => (v||'').trim();
   const phuongs = [...new Set(loadedData.map(r => norm(parseRow(r).phuong)).filter(Boolean))].sort((a,b) => a.localeCompare(b,'vi'));
-  const nguois  = [...new Set(loadedData.map(r => norm(parseRow(r).nguoiPhatHien)).filter(Boolean))].sort((a,b) => a.localeCompare(b,'vi'));
+  const tuyens  = [...new Set(loadedData.map(r => norm(parseRow(r).duong)).filter(Boolean))].sort((a,b) => a.localeCompare(b,'vi'));
   const sel = (id, items, all) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -1712,7 +1770,7 @@ function populateReportFilters() {
     el.innerHTML = `<option value="">${all}</option>` + items.map(v => `<option value="${v}"${v===cur?' selected':''}>${v}</option>`).join('');
   };
   sel('rptPhuong', phuongs, 'Tất cả phường');
-  sel('rptNguoiPH', nguois,  'Tất cả');
+  sel('rptNguoiPH', tuyens,  'Tất cả tuyến');
 }
 
 function openReportModal() {
@@ -1734,14 +1792,14 @@ function getReportRows() {
   fromD.setHours(0,0,0,0);
   toD.setHours(23,59,59,999);
   const fPhuong = (document.getElementById('rptPhuong')?.value  || '').trim();
-  const fNguoi  = (document.getElementById('rptNguoiPH')?.value || '').trim().toLowerCase();
+  const fTuyen  = (document.getElementById('rptNguoiPH')?.value || '').trim().toLowerCase();
   return loadedData.filter(row => {
     const p = parseRow(row);
     if (!p.ngayPhatHien) return false;
     const d = parseViDate(p.ngayPhatHien);
     if (!d || d < fromD || d > toD) return false;
     if (fPhuong && (p.phuong||'').trim() !== fPhuong) return false;
-    if (fNguoi  && (p.nguoiPhatHien||'').trim().toLowerCase() !== fNguoi) return false;
+    if (fTuyen  && (p.duong||'').trim().toLowerCase() !== fTuyen) return false;
     return true;
   });
 }
@@ -1750,7 +1808,13 @@ function updateReportPreview() {
   const counts = {}; Object.keys(STATUS_CONFIG).forEach(k => counts[k] = 0);
   rows.forEach(r => { const p = parseRow(r); const s = String(p.trangThai||''); if (counts[s] !== undefined) counts[s]++; });
   const container = document.getElementById('rptPreview');
-  container.innerHTML = `<div style="font-size:13px;font-weight:700;margin-bottom:8px">Tổng: ${rows.length} đèn</div>` +
+  const fromVal = document.getElementById('rptFrom').value;
+  const toVal   = document.getElementById('rptTo').value;
+  const dateRange = (fromVal && toVal)
+    ? `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">📅 ${fromVal} — ${toVal}</div>`
+    : '';
+  container.innerHTML = dateRange +
+    `<div style="font-size:13px;font-weight:700;margin-bottom:8px">Tổng: ${rows.length} camera</div>` +
     Object.entries(STATUS_CONFIG).filter(([s])=>counts[s]>0).map(([s,cfg])=>
       `<div class="rpt-preview-row"><span style="display:flex;align-items:center"><span class="dot" style="background:${cfg.color}"></span>${cfg.label}</span><strong style="color:${cfg.color}">${counts[s]}</strong></div>`
     ).join('') + (rows.length === 0 ? '<div style="font-size:12px;color:var(--text-muted);text-align:center">Không có dữ liệu trong khoảng này</div>' : '');
@@ -1771,83 +1835,90 @@ function exportReport() {
     const fromFile = fromVal.replace(/\//g, '-');
     const toFile   = toVal.replace(/\//g, '-');
     const fPhuong  = (document.getElementById('rptPhuong')?.value  || '').trim();
-    const fNguoi   = (document.getElementById('rptNguoiPH')?.value || '').trim();
-    const filterTxt = [fPhuong && ('Phường: ' + fPhuong), fNguoi && ('Người PH: ' + fNguoi)].filter(Boolean).join(' | ');
+    const fTuyen   = (document.getElementById('rptNguoiPH')?.value || '').trim();
+    const filterTxt = [fPhuong && ('Phường: ' + fPhuong), fTuyen && ('Tuyến: ' + fTuyen)].filter(Boolean).join(' | ');
 
     // đếm theo trạng thái
     const counts = {};
     Object.keys(STATUS_CONFIG).forEach(k => counts[k] = 0);
     rows.forEach(r => { const p = parseRow(r); const s = String(p.trangThai||''); if (counts[s] !== undefined) counts[s]++; });
-    const totalFixed = rows.filter(r => { const p = parseRow(r); return p.ngaySua && String(p.ngaySua).trim(); }).length;
 
-    const NC   = 15; // số cột
-    const aoa  = []; // array of arrays cho toàn bộ sheet
+    const NC       = 15; // số cột (bao gồm Hình ảnh)
+    const COL_DATE = 6;  // cột Ngày phát hiện (0-based)
+    const COL_IMG  = 14; // cột Hình ảnh (0-based)
+    const DATA_ROW0= 9;  // hàng dữ liệu đầu tiên trong aoa (0-based)
+    const aoa  = [];
     const merges = [];
 
     const mr = (r1, c1, r2, c2) => merges.push({ s:{r:r1,c:c1}, e:{r:r2,c:c2} });
 
-    // ── TIÊU ĐỀ (rows 0-2, 0-indexed) ──
-    aoa.push(['CHIẾU SÁNG KHU VỰC TRUNG TÂM', ...Array(NC-1).fill('')]);       mr(0,0,0,NC-1);
-    aoa.push(['BÁO CÁO ĐÈN TẮT / HƯ HỆ THỐNG CHIẾU SÁNG CÔNG CỘNG', ...Array(NC-1).fill('')]); mr(1,0,1,NC-1);
+    // ── TIÊU ĐỀ ──
+    aoa.push(['CHIẾU SÁNG KHU VỰC TRUNG TÂM', ...Array(NC-1).fill('')]); mr(0,0,0,NC-1);
+    aoa.push(['BÁO CÁO CAMERA TRÊN TRỤ CHIẾU SÁNG CÔNG CỘNG', ...Array(NC-1).fill('')]); mr(1,0,1,NC-1);
     const period = 'Kỳ báo cáo: ' + fromVal + ' — ' + toVal + '   |   Xuất ngày: ' + todayStr() + (filterTxt ? '   |   ' + filterTxt : '');
     aoa.push([period, ...Array(NC-1).fill('')]); mr(2,0,2,NC-1);
 
     // ── SPACER ──
     aoa.push(Array(NC).fill(''));
 
-    // ── TỔNG HỢP header (row 4) ──
+    // ── TỔNG HỢP ──
     aoa.push(['TỔNG HỢP', ...Array(NC-1).fill('')]); mr(4,0,4,NC-1);
-
-    // ── SUMMARY labels (row 5) ──
-    const sumLabels = ['Tổng đèn trong kỳ','','','Đèn LED hư (mã 1)','','','Đèn HPS hư (mã 7)','','','Hư quá 10 ngày','','','Đã sửa trong kỳ','',''];
-    aoa.push(sumLabels);
-    mr(5,0,5,2); mr(5,3,5,5); mr(5,6,5,8); mr(5,9,5,11); mr(5,12,5,14);
-
-    // ── SUMMARY values (row 6) ──
-    const sumVals = [rows.length,'','', counts['1']||0,'','', counts['7']||0,'','', counts['5']||0,'','', totalFixed,'',''];
-    aoa.push(sumVals);
-    mr(6,0,6,2); mr(6,3,6,5); mr(6,6,6,8); mr(6,9,6,11); mr(6,12,6,14);
+    const sumLabels = ['Tổng camera trong kỳ','','','Có nguy cơ','','','An toàn','','','Chưa xác định','','','','',''];
+    aoa.push(sumLabels); mr(5,0,5,2); mr(5,3,5,5); mr(5,6,5,8); mr(5,9,5,14);
+    const sumVals = [rows.length,'','', counts['NGUYCO']||0,'','', counts['ANTOAN']||0,'','', counts['CHUAXULY']||0,'','','',''];
+    aoa.push(sumVals); mr(6,0,6,2); mr(6,3,6,5); mr(6,6,6,8); mr(6,9,6,14);
 
     // ── SPACER ──
     aoa.push(Array(NC).fill(''));
 
-    // ── HEADER BẢNG (row 8) ──
-    aoa.push(['STT','Số trụ','Tên tủ','Đường','Phường','Loại đèn','Công suất','Trạng thái',
-              'Ngày phát hiện','Số ngày hư','Người phát hiện','Ngày sửa','Người sửa','Vật tư sửa','Ghi chú']);
+    // ── HEADER BẢNG ──
+    aoa.push(['STT','Số trụ CS','Tên tủ','Tuyến đường','Phường','Loại trụ','Ngày phát hiện',
+              'Mức an toàn','Camera cách ly','Cáp 2 lớp','Nối hở','Kẹp treo','Nguyên nhân','Ghi chú','Hình ảnh']);
 
-    // ── DỮ LIỆU (row 9+) ──
+    // ── DỮ LIỆU ──
     rows.forEach((row, i) => {
       const p   = parseRow(row);
-      const cfg = STATUS_CONFIG[String(p.trangThai)] || { label:'Không xác định' };
-      const days = daysBetween(p.ngayPhatHien);
+      const cfg = STATUS_CONFIG[String(p.trangThai)] || { label:'Chưa xác định' };
+      const ngayDate = parseViDate(p.ngayPhatHien) || (p.ngayPhatHien || '');
       aoa.push([
         i+1, p.soTru||'', p.tenTu||'', p.duong||'', p.phuong||'',
-        p.loaiDen||'', p.congSuat ? p.congSuat+'W' : '', cfg.label,
-        p.ngayPhatHien||'', days != null ? days : '',
-        p.nguoiPhatHien||'', p.ngaySua||'', p.nguoiSua||'', p.vatTuSua||'', p.ghiChu||'',
+        p.loaiTru||'', ngayDate, cfg.label,
+        p.anToanCachLy||'', p.anToanCapNguon||'', p.anToanMoiNoi||'', p.anToanKepTreo||'',
+        p.nguyenNhanKhac||'', p.ghiChu||'', p.hinhAnh||'',
       ]);
     });
 
     // ── FOOTER ──
-    const footerTxt = 'Hệ thống quản lý đèn tắt CSCC TP.HCM  —  Xuất ngày ' + todayStr();
+    const footerTxt = 'Hệ thống quản lý camera CSCC TP.HCM  —  Xuất ngày ' + todayStr();
     aoa.push([footerTxt, ...Array(NC-1).fill('')]); mr(aoa.length-1, 0, aoa.length-1, NC-1);
 
     // ── BUILD WORKBOOK ──
     const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+    // Format ngày dd/mm/yyyy + hyperlink ảnh
+    rows.forEach((_, i) => {
+      const r = DATA_ROW0 + i;
+      const dAddr = XLSX.utils.encode_cell({ r, c: COL_DATE });
+      if (ws[dAddr] && ws[dAddr].t === 'd') ws[dAddr].z = 'dd/mm/yyyy';
+      const iAddr = XLSX.utils.encode_cell({ r, c: COL_IMG });
+      const url = ws[iAddr] && ws[iAddr].v;
+      if (url && /^https?:\/\//i.test(String(url))) ws[iAddr].l = { Target: String(url), Tooltip: 'Xem ảnh' };
+    });
+
     ws['!merges'] = merges;
-    ws['!cols']   = [5,12,14,22,14,10,10,22,13,9,16,11,13,20,20].map(w => ({ wch: w }));
+    ws['!cols']   = [5,12,14,22,14,12,13,20,12,10,8,10,22,18,45].map(w => ({ wch: w }));
     ws['!rows']   = [
-      {hpt:22},{hpt:28},{hpt:18},{hpt:6},  // rows 0-3
-      {hpt:20},{hpt:18},{hpt:28},{hpt:6},  // rows 4-7
-      {hpt:22},                             // header
-      ...rows.map(() => ({hpt:18})),        // data
-      {hpt:14},                             // footer
+      {hpt:22},{hpt:28},{hpt:18},{hpt:6},
+      {hpt:20},{hpt:18},{hpt:28},{hpt:6},
+      {hpt:22},
+      ...rows.map(() => ({hpt:18})),
+      {hpt:14},
     ];
 
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Báo cáo');
-    XLSX.writeFile(wb, 'BaoCao-DenTat-' + fromFile + '-den-' + toFile + '.xlsx');
-    showToast('✅ Xuất báo cáo ' + rows.length + ' đèn');
+    XLSX.utils.book_append_sheet(wb, ws, 'Báo cáo camera');
+    XLSX.writeFile(wb, 'BaoCao-Camera-' + fromFile + '-den-' + toFile + '.xlsx');
+    showToast('✅ Xuất báo cáo ' + rows.length + ' camera');
     closeReportModal();
   } catch(err) {
     console.error('exportReport:', err);
@@ -1906,7 +1977,7 @@ function exportMarkersToCad() {
   add('0'); add('SECTION'); add('2'); add('ENTITIES');
   rows.forEach((r, i) => {
     const p = parseRow(r), vn = convertLatLonToVn2000(p.lat, p.lon);
-    const label = (p.soTru || `D${i+1}`).replace(/\r?\n/g, ' ');
+    const label = (p.soTru || `C${i+1}`).replace(/\r?\n/g, ' ');
     const cfg = STATUS_CONFIG[p.trangThai] || {};
     add('0'); add('CIRCLE'); add('8'); add(cfg.label || '0'); add('10'); add(vn.x.toFixed(3)); add('20'); add(vn.y.toFixed(3)); add('30'); add('0'); add('40'); add('1.0');
     add('0'); add('TEXT'); add('8'); add('0'); add('10'); add(vn.x.toFixed(3)); add('20'); add((vn.y + 1.5).toFixed(3)); add('30'); add('0'); add('40'); add('1.0'); add('1'); add(label);
@@ -1914,10 +1985,10 @@ function exportMarkersToCad() {
   add('0'); add('ENDSEC'); add('0'); add('EOF');
   const blob = new Blob([L2.join('\r\n')], { type: 'application/dxf;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = `dentat-${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.dxf`;
+  const a = document.createElement('a'); a.href = url; a.download = `camera-cscc-${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.dxf`;
   document.body.appendChild(a); a.click();
   setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
-  showToast(`✅ Đã xuất ${rows.length} đèn ra DXF`);
+  showToast(`✅ Đã xuất ${rows.length} camera ra DXF`);
 }
 
 // ── DRAGGABLE POPUP ──

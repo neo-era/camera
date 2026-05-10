@@ -1,34 +1,35 @@
-// Google Apps Script — Quản lý đèn tắt CSCC
+// Google Apps Script — Quản lý Camera Trụ CSCC
 // Deploy: Extensions → Apps Script → Deploy as Web App
 // Execute as: Me | Who has access: Anyone
 
-const SHEET_NAME  = 'DanhSachDen';  // ← Tab chứa dữ liệu đèn
-const USERS_SHEET = 'TaiKhoan';     // ← Tab tài khoản: tenDangNhap | matKhau | hoTen | vaiTro
+const SHEET_NAME  = 'DanhSachCamera'; // ← Tab chứa dữ liệu camera (đổi cho đúng tên tab)
+const USERS_SHEET = 'TaiKhoan';       // ← Tab tài khoản: tenDangNhap | matKhau | hoTen | vaiTro
 
-// Map camelCase JS → tên cột Sheet chính xác
+// Map camelCase JS → tên cột Sheet chính xác (phải khớp với header row trong Sheet)
 const FIELD_MAP = {
-  'id':            'ID',
-  'soTru':         'Số trụ',
-  'tenTu':         'Tên tủ',
-  'lat':           'latitude',
-  'latitude':      'latitude',
-  'lon':           'lontitude',
-  'longitude':     'lontitude',
-  'lontitude':     'lontitude',
-  'loaiDen':       'Loại đèn',
-  'congSuat':      'Công suất',
-  'trangThai':     'Trang thai',
-  'duong':         'Đường',
-  'phuong':        'Phường',
-  'ngayPhatHien':  'Ngày phát hiện',
-  'nguoiPhatHien': 'Người phát hiện',
-  'ngaySua':       'Ngày sửa',
-  'nguoiSua':      'Người sửa',
-  'vatTuSua':      'Vật tư sửa',
-  'hinhAnh':       'HÌnh ảnh',
-  'ghiChu':        'Ghi chú',
-  'vn2000x':       'VN2000-X',
-  'vn2000y':       'VN2000-Y',
+  'id':              'STT',
+  'lat':             'Lat',
+  'latitude':        'Lat',
+  'lon':             'Long',
+  'longitude':       'Long',
+  'lontitude':       'Long',
+  'duong':           'Tuyến đường',
+  'tenTu':           'Tên tủ điều khiển',
+  'tongSoTru':       'Tổng số trụ có camera đang lắp trên trụ',
+  'soTru':           'Vị trí trụ (Số trụ CS)',
+  'loaiTru':         'Loại trụ',
+  'soNha':           'Địa chỉ: Số nhà (nếu có)',
+  'phuong':          'Địa chỉ: Phường (Xã)',
+  'chuDauTu':        'Chủ đầu tư',
+  'ngayPhatHien':    'Ngày phát hiện',
+  'bienBan':         'Biên bản báo cáo sự cố/Biên bản ghi nhận hiện trường (có/không)',
+  'anToanCachLy':    'Mức độ an toàn: Camera đã được cách ly với trụ đèn',
+  'anToanCapNguon':  'Mức độ an toàn: Cáp nguồn 2 lớp vỏ bọc',
+  'anToanMoiNoi':    'Mức độ an toàn: Có mối nối hở',
+  'anToanKepTreo':   'Mức độ an toàn: Có kẹp treo, kẹp dừng cố định cáp',
+  'nguyenNhanKhac':  'Các nguyên nhân gây mất an toàn khác',
+  'hinhAnh':         'Hình ảnh',
+  'ghiChu':          'Ghi chú',
 };
 
 // ── UTILS ──────────────────────────────────────────────────────────────────
@@ -41,9 +42,9 @@ function getUsersSheet() {
   return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(USERS_SHEET);
 }
 
-// Chuẩn hóa chuỗi để so sánh (NFC + trim + lowercase)
+// Chuẩn hóa chuỗi: NFC + chuẩn hóa khoảng trắng (bao gồm xuống dòng) + trim + lowercase
 function norm(s) {
-  return String(s || '').normalize('NFC').trim().toLowerCase();
+  return String(s || '').normalize('NFC').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
 // Xây dựng index: norm(header) → col index (0-based)
@@ -126,7 +127,7 @@ function handleImageUpload(imageBase64, soTru, ext) {
       'Content-Type': 'application/json'
     },
     payload: JSON.stringify({
-      message: 'Upload ảnh đèn tắt: ' + fileName,
+      message: 'Upload ảnh camera CSCC: ' + fileName,
       content: imageBase64,
       branch: 'main'
     }),
@@ -173,17 +174,17 @@ function doPost(e) {
       return handleLogin(data.username || '', data.password || '');
     }
 
-    // Upload ảnh đèn tắt (tự tạo tên file)
+    // Upload ảnh camera (tự tạo tên file)
     if (data.action === 'upload_image') {
       return handleImageUpload(data.imageBase64 || '', data.soTru || '', data.ext || 'jpg');
     }
 
-    // Ghi file tuỳ chỉnh lên GitHub (Excel + ảnh từ index.html)
+    // Ghi file tuỳ chỉnh lên GitHub
     if (data.action === 'github_write_file') {
       return handleGithubWriteFile(data.path || '', data.content || '', data.sha || '', data.message || '');
     }
 
-    // Ghi dữ liệu đèn
+    // Ghi dữ liệu camera vào Sheet
     const sheet = getSheet();
     if (!sheet) throw new Error('Không tìm thấy sheet: ' + SHEET_NAME);
 
@@ -204,8 +205,8 @@ function doPost(e) {
         const updates = {};
         const latVal = data.lat || data.latitude || '';
         const lonVal = data.lon || data.longitude || data.lontitude || '';
-        if (latVal !== '') updates['latitude']  = latVal;
-        if (lonVal !== '') updates['lontitude'] = lonVal;
+        if (latVal !== '') updates['Lat']  = latVal;
+        if (lonVal !== '') updates['Long'] = lonVal;
         updateRowFields(sheet, hIdx, rowNum, updates);
       }
     }
@@ -218,21 +219,21 @@ function doPost(e) {
 
 // ── MARKER CRUD ────────────────────────────────────────────────────────────
 
-// Tìm số hàng theo ID (ưu tiên) hoặc Số trụ
+// Tìm số hàng theo STT (ưu tiên) hoặc Số trụ CS
 function findRowNum(sheet, headers, hIdx, data) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return -1;
 
-  const idColIdx    = hIdx[norm('ID')];
-  const soTruColIdx = hIdx[norm('Số trụ')];
+  const sttColIdx   = hIdx[norm('STT')];
+  const soTruColIdx = hIdx[norm('Vị trí trụ (Số trụ CS)')];
 
-  const searchId    = norm(data.id    || data['ID']    || '');
-  const searchSoTru = norm(data.soTru || data['Số trụ'] || '');
+  const searchId    = norm(data.id    || data['STT']                      || '');
+  const searchSoTru = norm(data.soTru || data['Vị trí trụ (Số trụ CS)'] || '');
   if (!searchId && !searchSoTru) return -1;
 
   const allData = sheet.getRange(2, 1, lastRow - 1, headers.length).getValues();
   for (let i = 0; i < allData.length; i++) {
-    const rowId    = idColIdx    !== undefined ? norm(allData[i][idColIdx])    : '';
+    const rowId    = sttColIdx   !== undefined ? norm(allData[i][sttColIdx])   : '';
     const rowSoTru = soTruColIdx !== undefined ? norm(allData[i][soTruColIdx]) : '';
     if ((searchId    && rowId    && rowId    === searchId)    ||
         (searchSoTru && rowSoTru && rowSoTru === searchSoTru)) {
@@ -260,8 +261,12 @@ function updateRowFields(sheet, hIdx, rowNum, fieldValues) {
 // Thêm hàng mới theo đúng thứ tự cột
 function appendRow(sheet, headers, hIdx, data) {
   const fieldValues = buildFieldValues(data);
+  // Build normalized lookup: norm(fieldKey) → value
+  const normFV = {};
+  for (const [k, v] of Object.entries(fieldValues)) normFV[norm(k)] = v;
   const row = headers.map(h => {
-    return fieldValues[h] !== undefined ? fieldValues[h] : '';
+    const v = normFV[norm(h)];
+    return v !== undefined ? v : '';
   });
   sheet.appendRow(row);
 }
@@ -282,5 +287,5 @@ function buildFieldValues(data) {
 // ── HEALTH CHECK ───────────────────────────────────────────────────────────
 
 function doGet(e) {
-  return jsonResponse({ status: 'ok', message: 'Den tat GAS v3 — login ready' });
+  return jsonResponse({ status: 'ok', message: 'Camera CSCC GAS v1 — login ready' });
 }
