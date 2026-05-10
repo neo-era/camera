@@ -1,5 +1,0 @@
-body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 2em; }
-h1 { color: #2c3e50; }
-#camera-list > div { background: #fff; margin: 0.5em 0; padding: 1em; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-button { padding: 0.5em 1em; border: none; background: #3498db; color: #fff; border-radius: 4px; cursor: pointer; }
-button:hover { background: #217dbb; }

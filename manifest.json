@@ -1,20 +1,26 @@
 {
-  "name": "Quản lý Camera Trụ Chiếu Sáng",
-  "short_name": "Camera Lightpole",
-  "start_url": "index.html",
+  "name": "Quản Lý Đèn Tắt CSCC",
+  "short_name": "Đèn Tắt",
+  "description": "Quản lý và báo cáo đèn chiếu sáng công cộng bị sự cố tại TP.HCM",
+  "start_url": "./dentat.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "description": "Ứng dụng quản lý camera treo trên trụ chiếu sáng",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#0ea5e9",
+  "lang": "vi",
   "icons": [
     {
       "src": "images/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "images/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

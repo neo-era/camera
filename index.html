@@ -1,16 +1,1944 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Camera Trụ Chiếu Sáng</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css">
+  <title>Quản Lý Đèn Tắt CSCC</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="author" content="Mai Vũ Lâm">
+  <meta name="description" content="Quản lý và báo cáo đèn chiếu sáng công cộng bị sự cố tại TP.HCM">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Đèn Tắt">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="images/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="images/icon-192.png">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0f172a; --navy2: #1e293b; --navy3: #334155;
+      --sky: #0ea5e9; --sky-dark: #0284c7; --sky-light: #e0f2fe;
+      --green: #10b981; --green-light: #d1fae5;
+      --red: #ef4444; --red-light: #fee2e2;
+      --orange: #f97316; --orange-light: #ffedd5;
+      --purple: #7c3aed; --purple-light: #ede9fe;
+      --amber: #f59e0b; --amber-light: #fef3c7;
+      --text: #1e293b; --text-muted: #64748b; --text-light: #94a3b8;
+      --border: #e2e8f0; --bg: #f8fafc; --white: #ffffff;
+      --radius: 14px; --radius-sm: 8px;
+      --shadow: 0 4px 20px rgba(0,0,0,.10);
+      --shadow-lg: 0 8px 40px rgba(0,0,0,.18);
+      --topbar-h: 56px; --stats-h: 48px; --bottomnav-h: 60px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    html, body { height: 100%; width: 100%; font-family: 'Inter', system-ui, sans-serif; overflow: hidden; background: var(--navy); color: var(--text); }
+
+    /* ── TOP BAR ── */
+    #topBar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: calc(var(--topbar-h) + var(--safe-top));
+      padding-top: var(--safe-top);
+      background: rgba(15,23,42,.95); backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      display: flex; align-items: center; gap: 10px; padding-left: 12px; padding-right: 12px; z-index: 3000;
+    }
+    .topbar-brand {
+      font-size: 14px; font-weight: 800; white-space: nowrap; flex-shrink: 0;
+      background: linear-gradient(135deg, #fbbf24, #f97316);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .topbar-brand span { font-size: 18px; -webkit-text-fill-color: initial; }
+    .topbar-search {
+      flex: 1; display: flex; align-items: center;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 999px; overflow: hidden; max-width: 440px;
+    }
+    .topbar-search input {
+      flex: 1; border: none; background: transparent; color: #fff;
+      font-size: 13px; padding: 0 12px; outline: none; height: 34px;
+    }
+    .topbar-search input::placeholder { color: rgba(255,255,255,.38); }
+    .topbar-search button {
+      width: 34px; height: 34px; border: none; background: var(--orange);
+      color: #fff; cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    #topbarUser {
+      display: flex; align-items: center; gap: 7px; flex-shrink: 0;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
+      border-radius: 999px; padding: 4px 12px 4px 6px;
+      cursor: pointer; transition: background .18s; user-select: none;
+    }
+    #topbarUser:hover { background: rgba(255,255,255,.16); }
+    .topbar-av {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), #dc2626);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; flex-shrink: 0;
+    }
+    .topbar-uname { color: #fff; font-size: 12px; font-weight: 600; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ── STATS STRIP ── */
+    #statsStrip {
+      position: fixed; top: calc(var(--topbar-h) + var(--safe-top)); left: 0; right: 0; height: var(--stats-h);
+      background: rgba(15,23,42,.92); backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      display: flex; align-items: center; gap: 6px; padding: 0 10px;
+      overflow-x: auto; z-index: 2900; scrollbar-width: none;
+    }
+    #statsStrip::-webkit-scrollbar { display: none; }
+    .stat-chip {
+      display: flex; align-items: center; gap: 5px; padding: 5px 10px;
+      border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer;
+      border: 1.5px solid transparent; white-space: nowrap; flex-shrink: 0;
+      transition: all .18s; user-select: none;
+    }
+    .stat-chip .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .stat-chip .cnt { background: rgba(255,255,255,.18); border-radius: 999px; padding: 1px 7px; font-size: 11px; }
+    .stat-chip.active { border-color: rgba(255,255,255,.25); }
+    .stat-chip.dimmed { opacity: .42; }
+    .stat-total { margin-left: auto; color: rgba(255,255,255,.5); font-size: 11px; white-space: nowrap; }
+
+    /* ── MAP ── */
+    #map {
+      position: fixed;
+      top: calc(var(--topbar-h) + var(--stats-h) + var(--safe-top));
+      left: 0; right: 0;
+      bottom: calc(var(--bottomnav-h) + var(--safe-bottom));
+      z-index: 1;
+    }
+
+    /* ── BOTTOM NAV ── */
+    #bottomNav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      padding-bottom: var(--safe-bottom);
+      background: rgba(15,23,42,.97); backdrop-filter: blur(14px);
+      border-top: 1px solid rgba(255,255,255,.07);
+      display: flex; align-items: center; justify-content: space-around; z-index: 3000;
+    }
+    .nav-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      background: transparent; border: none; cursor: pointer;
+      color: rgba(255,255,255,.5); font-size: 11px; font-family: inherit;
+      padding: 6px 10px; border-radius: 10px; transition: all .2s; min-width: 52px;
+    }
+    .nav-btn .ni { font-size: 20px; line-height: 1; }
+    .nav-btn:hover, .nav-btn.active { color: var(--orange); }
+    .nav-btn.active { background: rgba(249,115,22,.12); }
+    .nav-btn.add-btn { color: #fff; }
+    .nav-btn.add-btn .ni-wrap {
+      background: linear-gradient(135deg, var(--orange), #dc2626);
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; box-shadow: 0 4px 14px rgba(249,115,22,.5);
+      transition: transform .15s;
+    }
+    .nav-btn.add-btn:active .ni-wrap { transform: scale(.9); }
+    .nav-btn.danger { color: var(--red); }
+
+    /* ── SIDEBAR ── */
+    #sidebarOverlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 4000; display: none; backdrop-filter: blur(3px); }
+    #sidebarOverlay.open { display: block; }
+    #sidebar {
+      position: fixed; top: 0; left: -320px; bottom: 0; width: 300px; max-width: 90vw;
+      background: var(--white); z-index: 4100;
+      transition: left .3s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-lg);
+    }
+    #sidebar.open { left: 0; }
+    .sb-header {
+      background: linear-gradient(135deg, var(--navy), var(--navy2));
+      color: #fff; padding: calc(20px + var(--safe-top)) 16px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sb-header-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .sb-close { background: rgba(255,255,255,.1); border: none; color: #fff; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+    .sb-body { flex: 1; overflow-y: auto; padding: 14px; }
+    .sb-section { margin-bottom: 18px; }
+    .sb-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 8px; }
+    .sb-btn {
+      display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 14px;
+      border-radius: 10px; border: 1px solid var(--border); background: var(--bg);
+      color: var(--text); font-size: 13px; font-family: inherit; cursor: pointer;
+      transition: all .15s; margin-bottom: 6px; font-weight: 500;
+    }
+    .sb-btn:hover { background: #fff7ed; border-color: var(--orange); color: var(--orange); }
+    .sb-btn .bi { font-size: 17px; width: 22px; text-align: center; }
+    .filter-chip {
+      display: flex; align-items: center; gap: 8px; padding: 9px 12px;
+      border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg);
+      font-size: 13px; font-family: inherit; cursor: pointer; margin-bottom: 6px; width: 100%;
+      transition: all .15s; font-weight: 500; text-align: left;
+    }
+    .filter-chip .fc-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .filter-chip .fc-cnt { margin-left: auto; background: var(--border); border-radius: 999px; padding: 1px 8px; font-size: 11px; color: var(--text-muted); }
+    .filter-chip.active { background: #fff; border-color: currentColor; }
+    .filter-chip.inactive { opacity: .5; }
+    .filter-inline-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .filter-inline-row .filter-chip { width: auto; margin-bottom: 0; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: calc(var(--bottomnav-h) + var(--safe-bottom) + 14px);
+      left: 50%; transform: translateX(-50%) translateY(8px);
+      background: rgba(15,23,42,.95); color: #fff; padding: 10px 18px;
+      border-radius: 999px; font-size: 13px; font-weight: 500;
+      box-shadow: var(--shadow); z-index: 8000; opacity: 0;
+      transition: opacity .25s, transform .25s; pointer-events: none;
+      white-space: nowrap; max-width: calc(100vw - 32px); text-align: center;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── LEAFLET POPUP ── */
+    .leaflet-popup-content-wrapper { border-radius: 18px !important; box-shadow: 0 12px 40px rgba(0,0,0,.22) !important; padding: 0 !important; overflow: hidden; border: none !important; min-width: 0; }
+    .leaflet-popup-content { margin: 0 !important; width: 290px !important; }
+    .leaflet-popup-tip-container { margin-top: -1px; }
+    .leaflet-popup-close-button { top: 8px !important; right: 10px !important; color: rgba(255,255,255,.7) !important; font-size: 18px !important; }
+    .pc { font-family: 'Inter', sans-serif; color: var(--text); background: #fff; border-radius: 18px; overflow: hidden; }
+    .pc-topbar { height: 5px; }
+    .pc-header { padding: 14px 16px 10px; display: flex; gap: 12px; align-items: flex-start; }
+    .pc-avatar { width: 54px; height: 54px; border-radius: 12px; object-fit: cover; flex-shrink: 0; border: 2px solid rgba(0,0,0,.07); cursor: pointer; }
+    .pc-avatar-ph { width: 54px; height: 54px; border-radius: 12px; background: linear-gradient(135deg,#f1f5f9,#e2e8f0); display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+    .pc-meta { min-width: 0; flex: 1; }
+    .pc-name { font-size: 15px; font-weight: 800; color: var(--text); line-height: 1.25; letter-spacing: -.2px; }
+    .pc-id { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .pc-badge { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 3px 10px; font-size: 11px; font-weight: 700; margin-top: 7px; }
+    .pc-days { font-size: 11px; font-weight: 700; border-radius: 8px; padding: 3px 9px; margin-top: 4px; display: inline-block; }
+    .pc-divider { height: 1px; background: #f1f5f9; margin: 0 16px; }
+    .pc-body { padding: 10px 16px 4px; }
+    .pc-row { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; font-size: 12.5px; border-bottom: 1px solid #f8fafc; }
+    .pc-row:last-child { border-bottom: none; }
+    .pc-row .pi { font-size: 14px; flex-shrink: 0; width: 20px; text-align: center; margin-top: 1px; }
+    .pc-row .pk { color: var(--text-muted); font-weight: 600; white-space: nowrap; min-width: 64px; flex-shrink: 0; font-size: 12px; }
+    .pc-row .pv { color: var(--text); line-height: 1.45; }
+    .pc-coords { background: #f8fafc; border-radius: 8px; padding: 5px 10px; font-size: 10px; color: var(--text-muted); font-family: monospace; margin-top: 8px; letter-spacing: .2px; }
+    .pc-actions { display: grid; gap: 8px; padding: 12px 16px 16px; }
+    .pc-actions.one   { grid-template-columns: 1fr; }
+    .pc-actions.two   { grid-template-columns: 1fr 1fr; }
+    .pc-actions.three { grid-template-columns: 1fr 1fr 1fr; }
+    .pc-btn { padding: 11px 6px; border-radius: 11px; border: none; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity .15s, transform .1s; display: flex; align-items: center; justify-content: center; gap: 5px; touch-action: manipulation; min-height: 44px; white-space: nowrap; }
+    .pc-btn:active { opacity: .82; transform: scale(.97); }
+    .pc-btn.route { background: var(--sky); color: #fff; }
+    .pc-btn.edit  { background: #f1f5f9; color: var(--text); }
+    .pc-btn.fix   { background: var(--green); color: #fff; }
+
+    /* ── MARKER DOTS ── */
+    .den-marker-wrap { position: relative; }
+    .den-dot {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--c, #94a3b8); border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: #fff; font-weight: 800;
+    }
+    .den-pulse::before {
+      content: ''; position: absolute; inset: -4px; border-radius: 50%;
+      border: 2.5px solid var(--c, #94a3b8); opacity: 0;
+      animation: pulse 2s ease-out infinite;
+    }
+    @keyframes pulse { 0%{opacity:.7;transform:scale(1)} 100%{opacity:0;transform:scale(1.8)} }
+    .custom-label { background: none; border: none; box-shadow: none; font-weight: 700; font-size: 10px; color: var(--navy); text-shadow: 0 0 3px #fff, 0 0 6px #fff; font-family: 'Inter', sans-serif; pointer-events: none; }
+
+    /* ── FORM POPUP (mpop) ── */
+    .mpop-overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,.55); backdrop-filter: blur(4px);
+      z-index: 6000; display: none; align-items: center; justify-content: center; padding: 14px;
+    }
+    .mpop-overlay.open { display: flex; }
+    .mpop-card {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(420px, calc(100vw - 20px));
+      max-height: calc(100dvh - 28px);
+      background: var(--white); border-radius: 20px; box-shadow: var(--shadow-lg);
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .mpop-header {
+      padding: 14px 16px 12px;
+      background: linear-gradient(135deg, var(--navy), var(--navy2));
+      color: #fff; font-size: 14px; font-weight: 700; cursor: grab; user-select: none;
+      display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+    }
+    .mpop-header.dragging { cursor: grabbing; }
+    .mpop-close { background: rgba(255,255,255,.15); border: none; color: #fff; width: 28px; height: 28px; border-radius: 7px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+    .mpop-body { flex: 1; overflow-y: auto; padding: 16px; }
+    .mpop-section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin: 14px 0 8px; border-top: 1px solid var(--border); padding-top: 12px; }
+    .mpop-section-title:first-child { margin-top: 0; border-top: none; padding-top: 0; }
+    .fg { margin-bottom: 10px; }
+    .fg label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em; }
+    .fg input, .fg textarea, .fg select {
+      width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 9px;
+      font-size: 14px; font-family: inherit; color: var(--text); outline: none;
+      transition: border-color .2s; background: var(--bg); appearance: none;
+    }
+    .fg input:focus, .fg textarea:focus, .fg select:focus { border-color: var(--orange); background: #fff; }
+    .fg textarea { resize: vertical; min-height: 60px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .loc-btn {
+      width: 100%; padding: 10px; border-radius: 9px;
+      border: 1.5px dashed var(--orange); background: #fff7ed;
+      color: var(--orange); font-weight: 600; font-size: 13px;
+      cursor: pointer; font-family: inherit; transition: background .2s;
+    }
+    .loc-btn:hover { background: #ffedd5; }
+    .cam-btn {
+      width: 100%; padding: 10px; border-radius: 9px; border: 1.5px solid var(--border);
+      background: var(--bg); color: var(--text); font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: background .2s;
+    }
+    .cam-btn:hover { background: #f1f5f9; }
+    .img-preview { margin-top: 8px; display: flex; justify-content: center; }
+    .img-preview img { max-width: 100%; max-height: 100px; border-radius: 8px; object-fit: cover; }
+    .coords-info { font-size: 11px; color: var(--text-muted); margin-top: 5px; font-family: monospace; }
+    .status-select-wrap { position: relative; }
+    .status-select-wrap::after { content: '▼'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--text-muted); pointer-events: none; }
+    .mpop-footer { padding: 12px 16px 14px; border-top: 1px solid var(--border); display: flex; gap: 8px; flex-shrink: 0; }
+    .mpop-footer button { flex: 1; padding: 11px; border-radius: 10px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background .2s; }
+    .btn-secondary { background: var(--bg); color: var(--text); border: 1.5px solid var(--border) !important; }
+    .btn-primary { background: var(--orange); color: #fff; }
+    .btn-primary:hover { background: #ea580c; }
+    .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+
+    /* ── REPORT MODAL ── */
+    #reportModal {
+      position: fixed; inset: 0; background: rgba(15,23,42,.6); backdrop-filter: blur(4px);
+      z-index: 7000; display: none; align-items: flex-end; justify-content: center;
+      padding-bottom: calc(var(--bottomnav-h) + var(--safe-bottom));
+    }
+    #reportModal.open { display: flex; }
+    #reportCard {
+      background: var(--white); border-radius: 22px 22px 0 0; padding: 20px 18px 24px;
+      width: 100%; max-width: 480px; box-shadow: var(--shadow-lg);
+      animation: slideUp .3s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    #reportCard h3 { font-size: 16px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    #reportCard p { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+    .rpt-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .rpt-row label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
+    .rpt-row input, .rpt-row select { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 9px; font-size: 13px; font-family: inherit; outline: none; background: var(--white); color: var(--text); box-sizing: border-box; }
+    .rpt-row input:focus, .rpt-row select:focus { border-color: var(--orange); }
+    .rpt-row select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+    .rpt-preview { background: var(--bg); border-radius: 10px; padding: 12px 14px; margin: 10px 0; }
+    .rpt-preview-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; padding: 3px 0; }
+    .rpt-preview-row .dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+    .rpt-btn-row { display: flex; gap: 8px; margin-top: 14px; }
+    .rpt-btn { flex: 1; padding: 12px; border-radius: 12px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .rpt-btn-outline { background: var(--bg); color: var(--text); border: 1.5px solid var(--border) !important; }
+    .rpt-btn-primary { background: var(--orange); color: #fff; }
+
+    /* ── SEARCH DROPDOWN ── */
+    #searchDrop {
+      position: fixed; top: calc(var(--topbar-h) + var(--safe-top)); left: 10px; right: 10px;
+      max-width: 460px; background: var(--white); border-radius: var(--radius);
+      box-shadow: var(--shadow-lg); max-height: 260px; overflow-y: auto;
+      z-index: 3100; display: none;
+    }
+    #searchDrop ul { list-style: none; padding: 6px 0; }
+    #searchDrop li a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: var(--text); text-decoration: none; font-size: 13px; transition: background .15s; }
+    #searchDrop li a:hover { background: #f8fafc; }
+
+    /* ── GPS CURRENT MARKER ── */
+    .gps-dot { width: 18px; height: 18px; background: var(--sky); border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 3px rgba(14,165,233,.3); }
+
+    /* ── LEAFLET OVERRIDE ── */
+    .leaflet-control-zoom { border-radius: 10px !important; overflow: hidden; box-shadow: var(--shadow) !important; }
+    .leaflet-bar a { font-family: 'Inter', sans-serif !important; }
+
+    @media (max-width: 480px) {
+      .topbar-brand { display: none; }
+      .nav-btn { padding: 5px 6px; min-width: 44px; font-size: 10px; }
+      .nav-btn .ni { font-size: 18px; }
+    }
+
+    /* ── STATUS LIST PANEL ── */
+    #slOverlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 5000; display: none; backdrop-filter: blur(2px); }
+    #slOverlay.open { display: block; }
+    #slPanel {
+      position: fixed; bottom: 0; left: 0; right: 0; max-height: 72vh;
+      z-index: 5100; background: var(--white); border-radius: 22px 22px 0 0;
+      box-shadow: var(--shadow-lg); display: flex; flex-direction: column;
+      transform: translateY(100%); transition: transform .3s cubic-bezier(.4,0,.2,1);
+      padding-bottom: calc(var(--bottomnav-h) + var(--safe-bottom));
+    }
+    #slPanel.open { transform: translateY(0); }
+    .sl-header { padding: 14px 16px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .sl-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .sl-title { font-size: 15px; font-weight: 700; flex: 1; color: var(--text); }
+    .sl-cnt { font-size: 12px; color: var(--text-muted); background: var(--bg); border-radius: 999px; padding: 2px 10px; }
+    .sl-close { background: var(--bg); border: 1.5px solid var(--border); color: var(--text); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+    .sl-body { flex: 1; overflow-y: auto; }
+    .sl-item {
+      display: flex; align-items: center; gap: 12px; padding: 11px 16px;
+      border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background .15s;
+      border-left: 4px solid transparent;
+    }
+    .sl-item:hover { background: #f8fafc; }
+    .sl-item:last-child { border-bottom: none; }
+    .sl-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .sl-main { flex: 1; min-width: 0; }
+    .sl-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .sl-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sl-badge { font-size: 10px; font-weight: 700; border-radius: 6px; padding: 2px 7px; flex-shrink: 0; white-space: nowrap; }
+    .sl-arrow { color: var(--text-light); font-size: 18px; flex-shrink: 0; }
+    .sl-empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
+    .sl-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 10px auto 0; flex-shrink: 0; }
+
+    /* ── LOGIN ── */
+    #loginOverlay {
+      position: fixed; inset: 0; z-index: 99000;
+      background: linear-gradient(135deg, var(--navy) 0%, #1e3a5f 100%);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    #loginOverlay.visible { display: flex; }
+    .login-card {
+      background: var(--white); border-radius: 22px; width: min(380px, 100%);
+      box-shadow: 0 24px 60px rgba(0,0,0,.4); overflow: hidden;
+    }
+    .login-head {
+      background: linear-gradient(135deg, var(--navy), #1e3a5f);
+      padding: 28px 24px 22px; text-align: center; color: #fff;
+    }
+    .login-icon { font-size: 42px; margin-bottom: 10px; }
+    .login-appname { font-size: 17px; font-weight: 800; letter-spacing: .02em; margin-bottom: 4px;
+      background: linear-gradient(135deg,#fbbf24,#f97316); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+    .login-sub { font-size: 12px; opacity: .65; }
+    .login-body { padding: 22px 22px 24px; }
+    .login-body .fg { margin-bottom: 14px; }
+    .login-body .fg label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; display: block; margin-bottom: 5px; }
+    .login-body .fg input {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 15px; font-family: inherit; color: var(--text); outline: none;
+      transition: border-color .2s; background: var(--bg);
+    }
+    .login-body .fg input:focus { border-color: var(--orange); background: #fff; box-shadow: 0 0 0 3px rgba(249,115,22,.1); }
+    #loginError { min-height: 20px; font-size: 13px; color: var(--red); margin-bottom: 10px; text-align: center; }
+    .login-btn {
+      width: 100%; padding: 13px; border-radius: 12px; border: none;
+      background: linear-gradient(135deg, var(--orange), #dc2626); color: #fff;
+      font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
+      transition: opacity .2s; box-shadow: 0 4px 16px rgba(249,115,22,.4);
+    }
+    .login-btn:hover { opacity: .9; }
+    .login-btn:disabled { opacity: .6; cursor: not-allowed; }
+    /* User chip in sidebar */
+    #sbUserChip {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 16px; border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg,#fff7ed,#fff);
+    }
+    .sb-user-av { width: 36px; height: 36px; border-radius: 50%; background: var(--orange); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .sb-user-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .sb-user-role { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+    .sb-btn.logout { color: var(--red); border-color: #fee2e2; }
+    .sb-btn.logout:hover { background: #fee2e2; border-color: var(--red); color: var(--red); }
+  </style>
 </head>
 <body>
-    <h1>Quản lý Camera Trụ Chiếu Sáng</h1>
-    <div id="camera-list"></div>
-    <button onclick="addCamera()">Thêm Camera</button>
-    <script src="main.js"></script>
+
+<!-- ── LOGIN OVERLAY ── -->
+<div id="loginOverlay">
+  <div class="login-card">
+    <div class="login-head">
+      <div class="login-icon">💡</div>
+      <div class="login-appname">QUẢN LÝ ĐÈN TẮT CSCC</div>
+      <div class="login-sub">Đăng nhập để tiếp tục</div>
+    </div>
+    <div class="login-body">
+      <div class="fg">
+        <label>Tên đăng nhập</label>
+        <input id="lUsername" type="text" placeholder="Nhập tên đăng nhập" autocomplete="username"
+          onkeydown="if(event.key==='Enter')document.getElementById('lPassword').focus()">
+      </div>
+      <div class="fg">
+        <label>Mật khẩu</label>
+        <input id="lPassword" type="password" placeholder="Nhập mật khẩu" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div id="loginError"></div>
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">Đăng nhập</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOP BAR ── -->
+<header id="topBar">
+  <div class="topbar-brand"><span>💡</span>ĐÈN TẮT CSCC</div>
+  <div class="topbar-search">
+    <input type="text" id="searchInput" placeholder="Tìm số trụ, đường, phường..." autocomplete="off"
+      onkeydown="if(event.key==='Enter')searchMarkers()">
+    <button onclick="searchMarkers()">🔍</button>
+  </div>
+  <div id="topbarUser" onclick="logout()" title="Nhấn để đăng xuất">
+    <div class="topbar-av" id="topbarAv">👤</div>
+    <span class="topbar-uname" id="topbarUname">—</span>
+  </div>
+</header>
+<script>
+(function() {
+  try {
+    var u = JSON.parse(localStorage.getItem('dt_user') || 'null');
+    if (u && u.username) {
+      var isAdmin = u.role === 'admin' || u.role === 'quanly';
+      var isDemo  = u.role === 'demo';
+      document.getElementById('topbarAv').textContent = isDemo ? '👁' : isAdmin ? '👑' : '👷';
+      document.getElementById('topbarUname').textContent = u.displayName || u.username;
+    }
+  } catch(e) {}
+})();
+</script>
+
+<!-- ── STATS STRIP ── -->
+<div id="statsStrip">
+  <div class="stat-chip active" id="chip-1" onclick="openStatusList('1')" style="color:#ef4444">
+    <div class="dot" style="background:#ef4444"></div>LED hư <span class="cnt" id="cnt-1">0</span>
+  </div>
+  <div class="stat-chip active" id="chip-7" onclick="openStatusList('7')" style="color:#f97316">
+    <div class="dot" style="background:#f97316"></div>HPS hư <span class="cnt" id="cnt-7">0</span>
+  </div>
+  <div class="stat-chip active" id="chip-5" onclick="openStatusList('5')" style="color:#7c3aed">
+    <div class="dot" style="background:#7c3aed"></div>&gt;10 ngày <span class="cnt" id="cnt-5">0</span>
+  </div>
+  <div class="stat-chip active" id="chip-3" onclick="openStatusList('3')" style="color:#10b981">
+    <div class="dot" style="background:#10b981"></div>LED BT <span class="cnt" id="cnt-3">0</span>
+  </div>
+  <div class="stat-chip active" id="chip-4" onclick="openStatusList('4')" style="color:#0ea5e9">
+    <div class="dot" style="background:#0ea5e9"></div>HPS BT <span class="cnt" id="cnt-4">0</span>
+  </div>
+  <div class="stat-total" id="statTotal">Tổng: 0</div>
+</div>
+
+<!-- ── MAP ── -->
+<div id="map"></div>
+
+<!-- ── TOAST ── -->
+<div id="toast"></div>
+
+<!-- ── SEARCH DROPDOWN ── -->
+<div id="searchDrop"><ul id="searchList"></ul></div>
+
+<!-- ── BOTTOM NAV ── -->
+<nav id="bottomNav">
+  <button class="nav-btn" onclick="openSidebar()">
+    <span class="ni">☰</span><span>Menu</span>
+  </button>
+  <button class="nav-btn" onclick="centerOnUserLocation()">
+    <span class="ni">📍</span><span>Vị trí</span>
+  </button>
+  <button class="nav-btn add-btn" id="addMarkerBtn" onclick="startAddMarker()">
+    <div class="ni-wrap" id="addMarkerIcon">➕</div>
+    <span id="addMarkerLabel" style="margin-top:2px">Thêm</span>
+  </button>
+  <button class="nav-btn" onclick="openReportModal()">
+    <span class="ni">📊</span><span>Báo cáo</span>
+  </button>
+  <button id="saveNavBtn" class="nav-btn" onclick="saveMarkerData()">
+    <span class="ni">💾</span><span>Lưu</span>
+  </button>
+  <div style="position:absolute;bottom:calc(var(--safe-bottom) + 2px);left:0;right:0;text-align:center;font-size:9px;color:rgba(255,255,255,.28);pointer-events:none">© 2026 Liên hệ: 0989725507</div>
+</nav>
+
+<!-- ── SIDEBAR ── -->
+<div id="sidebarOverlay" onclick="closeSidebar()"></div>
+<aside id="sidebar">
+  <div class="sb-header">
+    <div class="sb-header-title">💡 Quản lý đèn tắt</div>
+    <button class="sb-close" onclick="closeSidebar()">✕</button>
+  </div>
+  <div id="sbUserChip">
+    <div class="sb-user-av" id="sbUserAv">👤</div>
+    <div>
+      <div class="sb-user-name" id="sbUserName">—</div>
+      <div class="sb-user-role" id="sbUserRole"></div>
+    </div>
+  </div>
+  <div class="sb-body">
+    <div class="sb-section">
+      <div class="sb-section-title">Lọc theo trạng thái</div>
+      <div id="filterChips"></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-section-title">Lọc theo loại đèn</div>
+      <div id="filterLoaiDenChips" class="filter-inline-row"></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-section-title">Lọc theo người phát hiện</div>
+      <div id="filterNguoiChips" class="filter-inline-row"></div>
+    </div>
+    <div class="sb-section" id="clearFilterSection" style="display:none">
+      <button class="sb-btn" style="color:var(--red);border-color:var(--red)" onclick="clearAllFilters()"><span class="bi">✕</span>Xóa tất cả bộ lọc</button>
+    </div>
+    <div class="sb-section">
+      <div class="sb-section-title">Hành động</div>
+      <button class="sb-btn" onclick="centerOnUserLocation();closeSidebar()"><span class="bi">📍</span>Vị trí hiện tại</button>
+      <button id="sbBtnAdd" class="sb-btn" onclick="startAddMarker();closeSidebar()"><span class="bi">➕</span>Thêm đèn mới</button>
+      <button class="sb-btn" onclick="loadDataFromSheet();closeSidebar()"><span class="bi">🔄</span>Tải lại từ Data</button>
+      <button id="sbBtnImport" class="sb-btn" onclick="document.getElementById('importFileInput').click();closeSidebar()"><span class="bi">📂</span>Nhập từ file Excel</button>
+      <button id="sbBtnExcel" class="sb-btn" onclick="saveMarkerData();closeSidebar()"><span class="bi">💾</span>Xuất Excel</button>
+      <button id="sbBtnCad" class="sb-btn" onclick="exportMarkersToCad();closeSidebar()"><span class="bi">📐</span>Xuất CAD (.dxf)</button>
+      <button id="sbBtnReport" class="sb-btn" onclick="openReportModal();closeSidebar()"><span class="bi">📊</span>Báo cáo hàng ngày</button>
+      <button class="sb-btn" onclick="window.open('huongdan.html','_blank')"><span class="bi">📖</span>Hướng dẫn sử dụng</button>
+      <button class="sb-btn logout" onclick="logout()"><span class="bi">🚪</span>Đăng xuất</button>
+    </div>
+    <div class="sb-section">
+      <div class="sb-section-title">Chú thích</div>
+      <div id="sbLegend"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── ADD/EDIT FORM POPUP ── -->
+<div id="markerForm" class="mpop-overlay" role="dialog" aria-modal="true">
+  <div class="mpop-card" id="mpopCard">
+    <div class="mpop-header" id="mpopHeader">
+      <span id="mpopTitle">Thêm đèn mới</span>
+      <button class="mpop-close" onclick="cancelMarkerPopup()">✕</button>
+    </div>
+    <div class="mpop-body">
+      <div class="mpop-section-title">Thông tin cơ bản</div>
+      <div class="form-row">
+        <div class="fg"><label>ID</label><input id="fId" type="text" placeholder="Mã tự động"></div>
+        <div class="fg"><label>Số trụ *</label><input id="fSoTru" type="text" placeholder="VD: A-123"></div>
+      </div>
+      <div class="fg"><label>Tên tủ điều khiển</label><input id="fTenTu" type="text" placeholder="Tên tủ quản lý đèn này"></div>
+      <div class="form-row">
+        <div class="fg">
+          <label>Loại đèn</label>
+          <select id="fLoaiDen">
+            <option value="">-- Chọn --</option>
+            <option value="LED">LED</option>
+            <option value="HPS">HPS</option>
+          </select>
+        </div>
+        <div class="fg"><label>Công suất (W)</label><input id="fCongSuat" type="number" placeholder="250"></div>
+      </div>
+      <div class="fg">
+        <label>Trạng thái *</label>
+        <div class="status-select-wrap">
+          <select id="fTrangThai">
+            <option value="">-- Chọn trạng thái --</option>
+            <option value="1">🔴 Đèn LED đang hư</option>
+            <option value="7">🟠 Đèn HPS đang hư</option>
+            <option value="5">🟣 Đèn hư quá 10 ngày</option>
+            <option value="3">🟢 Đèn LED sáng bình thường</option>
+            <option value="4">🔵 Đèn HPS sáng bình thường</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mpop-section-title">Vị trí</div>
+      <div class="form-row">
+        <div class="fg"><label>Latitude</label><input id="fLat" type="text" placeholder="10.xxxxxx"></div>
+        <div class="fg"><label>Longitude</label><input id="fLon" type="text" placeholder="106.xxxxxx"></div>
+      </div>
+      <button class="loc-btn" onclick="setMarkerToCurrentLocation()">📍 Lấy vị trí GPS hiện tại</button>
+      <div id="fCoordsText" class="coords-info">Tọa độ: —</div>
+      <div class="form-row" style="margin-top:10px">
+        <div class="fg"><label>Đường</label><input id="fDuong" type="text" placeholder="Tên đường"></div>
+        <div class="fg"><label>Phường</label><input id="fPhuong" type="text" placeholder="Tên phường"></div>
+      </div>
+
+      <div class="mpop-section-title">Sự cố</div>
+      <div class="form-row">
+        <div class="fg"><label>Ngày phát hiện</label><input id="fNgayPhatHien" type="date"></div>
+        <div class="fg"><label>Người phát hiện</label><input id="fNguoiPhatHien" type="text" placeholder="Tên người báo cáo"></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Ngày sửa xong</label><input id="fNgaySua" type="date"></div>
+        <div class="fg"><label>Người sửa</label><input id="fNguoiSua" type="text" placeholder="Tên người sửa chữa"></div>
+      </div>
+      <div class="fg"><label>Vật tư sử dụng</label><textarea id="fVatTuSua" placeholder="VD: Bóng đèn LED 250W, dây cáp 5m..."></textarea></div>
+      <div class="fg"><label>Ghi chú</label><textarea id="fGhiChu" placeholder="Ghi chú thêm..."></textarea></div>
+
+      <div class="mpop-section-title">Ảnh hiện trường</div>
+      <button class="cam-btn" onclick="triggerImageInput()">📷 Chụp / chọn ảnh</button>
+      <input id="fImageInput" type="file" accept="image/*" capture="environment" style="display:none" onchange="handleImageFile(event)">
+      <div class="img-preview" id="fImagePreview"></div>
+    </div>
+    <div class="mpop-footer">
+      <button class="btn-secondary" onclick="cancelMarkerPopup()">Hủy</button>
+      <button class="btn-primary" id="mpopSaveBtn" onclick="saveMarkerPopup()">💾 Lưu dữ liệu</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── REPORT MODAL ── -->
+<div id="reportModal">
+  <div id="reportCard">
+    <h3>📊 Báo cáo đèn hư hàng ngày</h3>
+    <p>Chọn khoảng thời gian và xuất danh sách đèn sự cố</p>
+    <div class="rpt-row">
+      <div><label>Từ ngày</label><input type="text" id="rptFrom" placeholder="DD/MM/YYYY" inputmode="numeric" maxlength="10"></div>
+      <div><label>Đến ngày</label><input type="text" id="rptTo" placeholder="DD/MM/YYYY" inputmode="numeric" maxlength="10"></div>
+    </div>
+    <div class="rpt-row">
+      <div><label>Phường / Xã</label><select id="rptPhuong"><option value="">Tất cả phường</option></select></div>
+      <div><label>Người phát hiện</label><select id="rptNguoiPH"><option value="">Tất cả</option></select></div>
+    </div>
+    <div class="rpt-preview" id="rptPreview">
+      <div style="font-size:12px;color:var(--text-muted);text-align:center">Chọn ngày để xem tóm tắt</div>
+    </div>
+    <div class="rpt-btn-row">
+      <button class="rpt-btn rpt-btn-outline" onclick="closeReportModal()">Hủy</button>
+      <button class="rpt-btn rpt-btn-primary" onclick="exportReport()">📥 Xuất Excel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── STATUS LIST PANEL ── -->
+<div id="slOverlay" onclick="closeStatusList()"></div>
+<div id="slPanel">
+  <div class="sl-handle"></div>
+  <div class="sl-header">
+    <div class="sl-dot" id="slDot"></div>
+    <div class="sl-title" id="slTitle">Danh sách</div>
+    <div class="sl-cnt" id="slCnt">0 đèn</div>
+    <button class="sl-close" onclick="closeStatusList()">✕</button>
+  </div>
+  <div class="sl-body" id="slBody"></div>
+</div>
+
+<input id="importFileInput" type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="processFile(event)">
+
+<!-- ── SCRIPTS ── -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+'use strict';
+// ── CONSTANTS ──
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0YAMrbBpNdTL0cmE_1LdQ7SJzeUW0J0VHhWpv3WqW9LvLyBTP8YV2nPzuuR27pJTZ8g/exec';
+const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQC6mnGNSNDjUVzs5C4Se9Q9JQCGF9_YQRTRXewhsJhg0QDAcp6NqtxNsFl-fs8g1yyYBQEUqPhgwBv/pub?output=csv';
+const MAX_IMG_LEN = 32767;
+
+const STATUS_CONFIG = {
+  '1': { label: 'Đèn LED đang hư',          color: '#ef4444', bg: '#fee2e2', emoji: '⚡', pulse: true },
+  '3': { label: 'Đèn LED sáng bình thường',  color: '#10b981', bg: '#d1fae5', emoji: '✓', pulse: false },
+  '4': { label: 'Đèn HPS sáng bình thường',  color: '#0ea5e9', bg: '#e0f2fe', emoji: '✓', pulse: false },
+  '5': { label: 'Đèn hư quá 10 ngày',        color: '#7c3aed', bg: '#ede9fe', emoji: '!!', pulse: true },
+  '7': { label: 'Đèn HPS đang hư',           color: '#f97316', bg: '#ffedd5', emoji: '⚡', pulse: true },
+};
+
+// ── STATE ──
+let map, markersCluster, labelLayerGroup;
+let markers = [];
+let loadedData = [];
+let editingIndex = null;
+let addMarkerMode = false;
+let pendingNewMarker = false;
+let markerImageDataUrl = '', markerImagePath = '';
+let currentLocationMarker = null;
+let routeLine = null;
+let hiddenFilters = new Set();
+let filterLoaiDen = '';
+let filterNguoi = '';
+let toastTimer;
+let currentUser = null; // { username, displayName, role }
+
+// ── AUTH ──
+function checkAuth() {
+  let u = null;
+  try { u = JSON.parse(localStorage.getItem('dt_user') || 'null'); } catch(e) {}
+  if (u && u.username) {
+    currentUser = u;
+    document.getElementById('loginOverlay').classList.remove('visible');
+    updateSidebarUser();
+    loadDataFromSheet();
+    return;
+  }
+  localStorage.removeItem('dt_user');
+  document.getElementById('loginOverlay').classList.add('visible');
+  setTimeout(() => { const el = document.getElementById('lUsername'); if (el) el.focus(); }, 150);
+}
+
+async function doLogin() {
+  const username = (document.getElementById('lUsername').value || '').trim();
+  const password = document.getElementById('lPassword').value || '';
+  const errEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginBtn');
+  errEl.textContent = '';
+  if (!username) { errEl.textContent = 'Vui lòng nhập tên đăng nhập'; return; }
+  if (!password) { errEl.textContent = 'Vui lòng nhập mật khẩu'; return; }
+  btn.disabled = true; btn.textContent = '⏳ Đang kiểm tra...';
+  try {
+    const res = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'login', username, password })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.status === 'ok') {
+      currentUser = data.user;
+      localStorage.setItem('dt_user', JSON.stringify(currentUser));
+      document.getElementById('loginOverlay').classList.remove('visible');
+      updateSidebarUser();
+      loadDataFromSheet();
+    } else {
+      errEl.textContent = data.message || 'Sai tên đăng nhập hoặc mật khẩu';
+    }
+  } catch(e) {
+    errEl.textContent = 'Lỗi kết nối: ' + e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Đăng nhập';
+  }
+}
+
+function logout() {
+  if (!confirm('Bạn có muốn đăng xuất không?')) return;
+  localStorage.removeItem('dt_user');
+  currentUser = null;
+  loadedData = []; markers = [];
+  if (markersCluster) markersCluster.clearLayers();
+  if (labelLayerGroup) labelLayerGroup.clearLayers();
+  closeSidebar();
+  document.getElementById('loginOverlay').classList.add('visible');
+  document.getElementById('lPassword').value = '';
+  document.getElementById('loginError').textContent = '';
+  updateStats();
+  setTimeout(() => { const u = document.getElementById('lUsername'); if (u) u.focus(); }, 150);
+}
+
+function isDemoUser() {
+  return currentUser && currentUser.role === 'demo';
+}
+function denyDemo() {
+  showToast('🔒 Tài khoản demo chỉ được xem, không thể thực hiện thao tác này');
+  return true;
+}
+
+function updateSidebarUser() {
+  if (!currentUser) return;
+  const isDemo  = currentUser.role === 'demo';
+  const isAdmin = currentUser.role === 'admin' || currentUser.role === 'quanly';
+  const av   = isDemo ? '👁' : isAdmin ? '👑' : '👷';
+  const role = isDemo ? 'Tài khoản demo (chỉ xem)' : isAdmin ? 'Quản trị viên' : 'Nhân viên';
+  const name = currentUser.displayName || currentUser.username;
+  document.getElementById('sbUserAv').textContent = av;
+  document.getElementById('sbUserName').textContent = name;
+  document.getElementById('sbUserRole').textContent = role;
+  document.getElementById('topbarAv').textContent = av;
+  document.getElementById('topbarUname').textContent = name;
+
+  // Ẩn các nút bị cấm với tài khoản demo
+  const demoHideIds = ['sbBtnAdd','sbBtnImport','sbBtnExcel','sbBtnCad','sbBtnReport'];
+  demoHideIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isDemo ? 'none' : '';
+  });
+  // Ẩn nút Thêm ở bottom nav
+  const addBtn = document.getElementById('addMarkerBtn');
+  if (addBtn) addBtn.style.display = isDemo ? 'none' : '';
+  // Ẩn nút Lưu ở bottom nav
+  const saveBtn = document.getElementById('saveNavBtn');
+  if (saveBtn) saveBtn.style.display = isDemo ? 'none' : '';
+}
+
+// ── TOAST ──
+function showToast(msg, dur = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), dur);
+}
+
+// ── SIDEBAR ──
+function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').classList.add('open'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('open'); }
+
+// ── SEARCH ──
+function searchMarkers() {
+  const raw = document.getElementById('searchInput').value.trim();
+  const drop = document.getElementById('searchDrop');
+  const list = document.getElementById('searchList');
+  list.innerHTML = ''; drop.style.display = 'none';
+  if (!raw) return;
+  const q = normalizeText(raw);
+  const hits = markers.filter(Boolean).filter(e => {
+    const p = parseMarkerRow(e.row);
+    return normalizeText(p.soTru + ' ' + p.duong + ' ' + p.phuong + ' ' + p.tenTu).includes(q);
+  });
+  if (!hits.length) { showToast('Không tìm thấy kết quả'); return; }
+  if (hits.length === 1) { map.setView([hits[0].lat, hits[0].lon], 18); hits[0].marker.openPopup(); return; }
+  hits.slice(0, 15).forEach(e => {
+    const p = parseMarkerRow(e.row); const cfg = STATUS_CONFIG[String(p.trangThai)] || {};
+    const li = document.createElement('li');
+    li.innerHTML = `<a href="#"><span style="color:${cfg.color||'#64748b'};font-size:16px">💡</span>
+      <span><strong>${p.soTru || '—'}</strong> &nbsp;
+      <span style="color:#64748b;font-size:11px">${p.duong || ''} ${p.phuong || ''}</span></span>
+      <span style="color:${cfg.color||'#64748b'};font-size:10px;margin-left:auto;white-space:nowrap">${cfg.label||''}</span></a>`;
+    li.querySelector('a').onclick = ev => { ev.preventDefault(); map.setView([e.lat, e.lon], 18); e.marker.openPopup(); drop.style.display = 'none'; };
+    list.appendChild(li);
+  });
+  drop.style.display = 'block';
+}
+document.addEventListener('click', e => { if (!e.target.closest('#searchDrop') && !e.target.closest('.topbar-search')) document.getElementById('searchDrop').style.display = 'none'; });
+
+// ── HELPERS ──
+function normalizeText(t) { return (t||'').toString().normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase(); }
+function normalizeKey(v) { return (v||'').toString().normalize('NFD').replace(/\p{Diacritic}/gu,'').trim().toLowerCase(); }
+function getDistanceMeters(la1,lo1,la2,lo2) {
+  const R=6371e3, r=x=>x*Math.PI/180;
+  const a=Math.sin(r(la2-la1)/2)**2+Math.cos(r(la1))*Math.cos(r(la2))*Math.sin(r(lo2-lo1)/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+// Chuyển Excel serial number (vd: 46208.xxx) → chuỗi dd/mm/yyyy
+function excelSerialToViDate(serial) {
+  if (!serial || typeof serial !== 'number' || serial < 1) return '';
+  const ms = Math.round((serial - 25569) * 86400000); // 25569 = ngày chênh Excel→JS epoch
+  const d = new Date(ms);
+  return `${String(d.getUTCDate()).padStart(2,'0')}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${d.getUTCFullYear()}`;
+}
+// Chuẩn hóa giá trị ngày: serial number → dd/mm/yyyy, hoặc giữ nguyên nếu đã là string
+function parseDate(val) {
+  if (val === null || val === undefined || val === '') return '';
+  if (typeof val === 'number' && val > 40000) return excelSerialToViDate(val);
+  const s = String(val).trim();
+  const d = parseViDate(s);
+  if (d) return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  return s;
+}
+
+// Parse dd/mm/yyyy hoặc yyyy-mm-dd → Date object theo giờ local (không bị lệch timezone)
+function parseViDate(dateStr) {
+  if (!dateStr) return null;
+  const s = String(dateStr).trim();
+  if (!s) return null;
+  let day, month, year;
+  if (s.includes('/')) {
+    const p = s.split('/');
+    if (p.length < 3) return null;
+    if (p[0].length === 4) { [year, month, day] = p; }   // yyyy/mm/dd (hiếm)
+    else { [day, month, year] = p; }                       // dd/mm/yyyy
+  } else if (s.includes('-')) {
+    const p = s.split('-');
+    if (p.length < 3) return null;
+    if (p[0].length === 4) { [year, month, day] = p; }   // yyyy-mm-dd (ISO)
+    else { [day, month, year] = p; }                       // dd-mm-yyyy
+  } else return null;
+  const d = new Date(+year, +month - 1, +day);
+  return isNaN(d) ? null : d;
+}
+function daysBetween(dateStr) {
+  const d = parseViDate(dateStr);
+  if (!d) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.floor((today - d) / 86400000);
+}
+function todayStr() {
+  const n = new Date();
+  return `${String(n.getDate()).padStart(2,'0')}/${String(n.getMonth()+1).padStart(2,'0')}/${n.getFullYear()}`;
+}
+function toInputDate(vn) {
+  if (!vn) return '';
+  const d = parseViDate(vn);
+  if (!d) return '';
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function fromInputDate(iso) {
+  if (!iso) return '';
+  const d = parseViDate(iso);
+  if (!d) return '';
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+
+// ── ROW SCHEMA ──
+const FIELDS = {
+  id:             [0,  'ID','id'],
+  soTru:          [1,  'Số trụ','so tru','soTru'],
+  tenTu:          [2,  'Tên tủ','ten tu','tenTu'],
+  latitude:       [3,  'latitude','lat'],
+  longitude:      [4,  'lontitude','longitude','lon','longtitude'],
+  loaiDen:        [5,  'Loại đèn','loai den','loaiDen'],
+  congSuat:       [6,  'Công suất','cong suat','congSuat'],
+  trangThai:      [7,  'Trang thai','Trạng thái','trang thai','status','trangThai'],
+  duong:          [8,  'Đường','duong'],
+  phuong:         [9,  'Phường','phuong'],
+  ngayPhatHien:   [10, 'Ngày phát hiện','ngay phat hien','ngayPhatHien'],
+  nguoiPhatHien:  [11, 'Người phát hiện','nguoi phat hien','nguoiPhatHien'],
+  ngaySua:        [12, 'Ngày sửa','ngay sua','ngaySua'],
+  nguoiSua:       [13, 'Người sửa','nguoi sua','nguoiSua'],
+  vatTuSua:       [14, 'Vật tư sửa','vat tu sua','vatTuSua'],
+  hinhAnh:        [15, 'HÌnh ảnh','Hình ảnh','hinh anh','image','hinhAnh'],
+  ghiChu:         [16, 'Ghi chú','ghi chu','ghiChu'],
+  vn2000x:        [17, 'VN2000-X','VN2000X','vn2000x'],
+  vn2000y:        [18, 'VN2000-Y','VN2000Y','vn2000y'],
+};
+
+function getVal(row, keys, fb = '') {
+  if (!row) return fb;
+  if (Array.isArray(row)) {
+    for (const k of keys) if (typeof k === 'number' && row[k] != null && row[k] !== '') return row[k];
+  } else {
+    const norm = {};
+    Object.keys(row).forEach(k => norm[normalizeKey(k)] = k);
+    for (const k of keys) {
+      if (row[k] != null && row[k] !== '') return row[k];
+      const nk = normalizeKey(k);
+      if (norm[nk] != null && row[norm[nk]] != null && row[norm[nk]] !== '') return row[norm[nk]];
+    }
+  }
+  return fb;
+}
+
+function parseRow(row) {
+  const g = k => String(getVal(row, FIELDS[k], '') || '').trim();
+  return {
+    id: g('id'), soTru: g('soTru'), tenTu: g('tenTu'),
+    lat: parseFloat(getVal(row, FIELDS.latitude, null)),
+    lon: parseFloat(getVal(row, FIELDS.longitude, null)),
+    loaiDen: g('loaiDen'), congSuat: g('congSuat'), trangThai: g('trangThai'),
+    duong: g('duong'), phuong: g('phuong'),
+    ngayPhatHien: parseDate(getVal(row, FIELDS.ngayPhatHien, '')),
+    nguoiPhatHien: g('nguoiPhatHien'),
+    ngaySua: parseDate(getVal(row, FIELDS.ngaySua, '')),
+    nguoiSua: g('nguoiSua'),
+    vatTuSua: g('vatTuSua'), hinhAnh: g('hinhAnh'), ghiChu: g('ghiChu'),
+    vn2000x: g('vn2000x'), vn2000y: g('vn2000y'),
+  };
+}
+function parseMarkerRow(row) { return parseRow(row); }
+
+// Cập nhật field vào row, đồng thời ghi đè key gốc của Sheet (dùng FIELDS aliases để map)
+// đảm bảo GAS đọc theo tên cột nào cũng nhận được giá trị mới
+function applyFieldsToRow(row, updates) {
+  const norm = {};
+  Object.keys(row).forEach(k => { norm[normalizeKey(k)] = k; });
+  for (const [field, value] of Object.entries(updates)) {
+    row[field] = value;
+    // Tìm key gốc qua FIELDS aliases (xử lý camelCase vs 'So tru' không cùng normalizeKey)
+    const fieldDef = FIELDS[field];
+    if (fieldDef) {
+      for (const alias of fieldDef) {
+        if (typeof alias !== 'string') continue;
+        const na = normalizeKey(alias);
+        if (norm[na] && norm[na] !== field) { row[norm[na]] = value; break; }
+      }
+    } else {
+      const nk = normalizeKey(field);
+      if (norm[nk] && norm[nk] !== field) row[norm[nk]] = value;
+    }
+  }
+}
+
+function rowToArray(row) {
+  const p = parseRow(row);
+  return [p.id,p.soTru,p.tenTu,p.lat,p.lon,p.loaiDen,p.congSuat,p.trangThai,p.duong,p.phuong,
+          p.ngayPhatHien,p.nguoiPhatHien,p.ngaySua,p.nguoiSua,p.vatTuSua,p.hinhAnh,p.ghiChu,p.vn2000x,p.vn2000y];
+}
+
+const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/neo-era/dentat/main/';
+function normalizeImagePath(img) {
+  if (!img || typeof img !== 'string') return '';
+  const t = img.trim();
+  if (!t) return '';
+  if (/^data:/i.test(t)) return t;
+  if (/^https?:\/\//i.test(t)) return t;
+  const n = t.replace(/\\/g, '/');
+  const ip = n.toLowerCase().indexOf('images/');
+  if (ip !== -1) return GITHUB_RAW_BASE + n.slice(ip);
+  if (!/\//.test(n)) return GITHUB_RAW_BASE + 'images/' + n;
+  return GITHUB_RAW_BASE + n;
+}
+
+// ── GITHUB IMAGE UPLOAD (qua GAS proxy — token lưu trong Script Properties) ──
+function getBase64FromDataUrl(dataUrl) {
+  return dataUrl.replace(/^data:image\/[^;]+;base64,/, '');
+}
+function getImageExtFromDataUrl(dataUrl) {
+  const m = dataUrl.match(/^data:image\/(\w+)/);
+  if (!m) return 'jpg';
+  const t = m[1].toLowerCase();
+  if (t === 'jpeg' || t === 'jpg') return 'jpg';
+  if (t === 'png') return 'jpg';
+  if (t === 'webp') return 'webp';
+  return 'jpg';
+}
+async function uploadImageViaGas(dataUrl, soTru) {
+  const res = await fetch(GOOGLE_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({
+      action: 'upload_image',
+      imageBase64: getBase64FromDataUrl(dataUrl),
+      ext: getImageExtFromDataUrl(dataUrl),
+      soTru: soTru || 'img'
+    })
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const text = await res.text();
+  let data;
+  try { data = JSON.parse(text); } catch(e) { throw new Error('GAS trả về không phải JSON: ' + text.slice(0, 200)); }
+  if (data.status !== 'ok') throw new Error(data.message || 'Upload thất bại');
+  return data.path;
+}
+
+// ── POPUP CONTENT ──
+function createPopupContent(row, rowIndex) {
+  const p = parseRow(row);
+  const cfg = STATUS_CONFIG[p.trangThai] || { label: 'Không xác định', color: '#94a3b8', bg: '#f1f5f9', emoji: '❓' };
+  const imgUrl = normalizeImagePath(p.hinhAnh);
+  const avatarHtml = imgUrl
+    ? `<img class="pc-avatar" src="${imgUrl}" onclick="window.open('${imgUrl}','_blank')" title="Xem ảnh đầy đủ" onerror="this.outerHTML='<div class=\\'pc-avatar-ph\\'>💡</div>'">`
+    : `<div class="pc-avatar-ph">💡</div>`;
+  const days = daysBetween(p.ngayPhatHien);
+  const broken = ['1','5','7'].includes(p.trangThai);
+  const daysHtml = broken && days !== null
+    ? `<div class="pc-days" style="background:${cfg.bg};color:${cfg.color}">⏱ ${days <= 0 ? 'Hôm nay' : days + ' ngày chưa sửa'}</div>`
+    : (p.ngaySua ? `<div class="pc-days" style="background:#d1fae5;color:#065f46">✅ Đã sửa ${p.ngaySua}</div>` : '');
+  const coordStr = Number.isFinite(p.lat) && Number.isFinite(p.lon) ? `${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}` : '—';
+  const rows = [];
+  if (p.loaiDen || p.congSuat) rows.push(`<div class="pc-row"><span class="pi">💡</span><span class="pk">Loại đèn</span><span class="pv">${[p.loaiDen, p.congSuat ? p.congSuat+'W' : ''].filter(Boolean).join(' · ')}</span></div>`);
+  if (p.tenTu) rows.push(`<div class="pc-row"><span class="pi">🗄</span><span class="pk">Tủ điều khiển</span><span class="pv">${p.tenTu}</span></div>`);
+  if (p.duong || p.phuong) rows.push(`<div class="pc-row"><span class="pi">📍</span><span class="pk">Địa chỉ</span><span class="pv">${[p.duong, p.phuong].filter(Boolean).join(', ')}</span></div>`);
+  if (p.ngayPhatHien || p.nguoiPhatHien) rows.push(`<div class="pc-row"><span class="pi">🗓</span><span class="pk">Phát hiện</span><span class="pv">${[p.ngayPhatHien, p.nguoiPhatHien].filter(Boolean).join(' · ')}</span></div>`);
+  if (p.ngaySua || p.nguoiSua) rows.push(`<div class="pc-row"><span class="pi">🔨</span><span class="pk">Đã sửa</span><span class="pv">${[p.ngaySua, p.nguoiSua].filter(Boolean).join(' · ')}</span></div>`);
+  if (p.vatTuSua) rows.push(`<div class="pc-row"><span class="pi">🔧</span><span class="pk">Vật tư</span><span class="pv">${p.vatTuSua}</span></div>`);
+  if (p.ghiChu) rows.push(`<div class="pc-row"><span class="pi">📝</span><span class="pk">Ghi chú</span><span class="pv">${p.ghiChu}</span></div>`);
+
+  const hasRoute = Number.isFinite(p.lat);
+  const hasEdit  = Number.isInteger(rowIndex);
+  const hasFix   = broken && hasEdit;
+  const btnCount = (hasRoute ? 1 : 0) + (hasEdit ? 1 : 0) + (hasFix ? 1 : 0);
+  const gridClass = btnCount >= 3 ? 'three' : btnCount === 2 ? 'two' : 'one';
+
+  const routeBtn = hasRoute ? `<button class="pc-btn route" onclick="routeToMarker(${rowIndex})">🧭 Đi đến</button>` : '';
+  const editBtn  = hasEdit  ? `<button class="pc-btn edit"  onclick="openEditPopup(${rowIndex})">✏️ Chỉnh sửa</button>` : '';
+  const fixBtn   = hasFix   ? `<button class="pc-btn fix"   onclick="quickFix(${rowIndex});this.closest('.leaflet-popup').remove()">✅ Đã sửa</button>` : '';
+
+  return `<div class="pc">
+    <div class="pc-topbar" style="background:${cfg.color}"></div>
+    <div class="pc-header">
+      ${avatarHtml}
+      <div class="pc-meta">
+        <div class="pc-name">${p.soTru || 'Chưa có số trụ'}</div>
+        ${p.id ? `<div class="pc-id">ID: ${p.id}</div>` : ''}
+        <div class="pc-badge" style="background:${cfg.bg};color:${cfg.color}">${cfg.emoji} ${cfg.label}</div>
+        ${daysHtml}
+      </div>
+    </div>
+    <div class="pc-divider"></div>
+    <div class="pc-body">${rows.join('')}<div class="pc-coords">📡 ${coordStr}</div></div>
+    <div class="pc-actions ${gridClass}">${routeBtn}${editBtn}${fixBtn}</div>
+  </div>`;
+}
+
+// ── MARKER ICON ──
+function createStatusIcon(trangThai) {
+  const cfg = STATUS_CONFIG[String(trangThai)] || { color: '#94a3b8', emoji: '?', pulse: false };
+  const pulseHtml = cfg.pulse ? '<div class="den-pulse" style="position:absolute;inset:0;border-radius:50%;border:2.5px solid '+cfg.color+';animation:pulse 2s ease-out infinite"></div>' : '';
+  return L.divIcon({
+    className: '',
+    html: `<div class="den-marker-wrap" style="position:relative;width:26px;height:26px">
+      ${pulseHtml}
+      <div class="den-dot" style="--c:${cfg.color};position:relative;z-index:1">${cfg.emoji}</div>
+    </div>`,
+    iconSize: [26, 26], iconAnchor: [13, 13], popupAnchor: [0, -16]
+  });
+}
+
+// ── MAP INIT ──
+function initializeMap() {
+  const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 22, attribution: '© OSM' });
+  const sat = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', { maxZoom: 22, subdomains: ['mt0','mt1','mt2','mt3'], attribution: '© Google' });
+  map = L.map('map', { center: [10.762622, 106.660172], zoom: 13, maxZoom: 22, layers: [osm] });
+  markersCluster = L.markerClusterGroup({ maxClusterRadius: 50, showCoverageOnHover: false });
+  labelLayerGroup = L.layerGroup();
+  L.control.layers({'OpenStreetMap': osm, 'Vệ tinh': sat}, {}, { position: 'topright' }).addTo(map);
+  map.addLayer(markersCluster);
+  map.addLayer(labelLayerGroup);
+  map.on('click', e => {
+    document.getElementById('searchDrop').style.display = 'none';
+    if (pendingNewMarker) showFormAt(e.latlng.lat, e.latlng.lng);
+  });
+}
+
+// ── ADD MARKER TO MAP ──
+function addMarkerRow(row, idx) {
+  const p = parseRow(row);
+  if (!Number.isFinite(p.lat) || !Number.isFinite(p.lon)) {
+    if (idx < 3) console.warn('[dentat] Row', idx, 'invalid coords — lat:', p.lat, 'lon:', p.lon, 'keys:', Object.keys(row).slice(0,8));
+    return null;
+  }
+  const icon = createStatusIcon(p.trangThai);
+  const marker = L.marker([p.lat, p.lon], { icon });
+  const entry = { lat: p.lat, lon: p.lon, name: p.soTru, marker, row, rowIndex: idx, labelMarker: null };
+  marker.bindPopup(() => createPopupContent(entry.row, idx), { maxWidth: 320, minWidth: 250 });
+  marker.on('dblclick', () => openEditPopup(idx));
+  markersCluster.addLayer(marker);
+  if (p.soTru) {
+    entry.labelMarker = L.marker([p.lat, p.lon], {
+      icon: L.divIcon({ className: 'custom-label', html: `<div>${p.soTru}</div>`, iconSize: [80, 16], iconAnchor: [40, 22] })
+    }).addTo(labelLayerGroup);
+  }
+  markers[idx] = entry;
+  return marker;
+}
+
+function addMarkersToMap(data) {
+  markersCluster.clearLayers(); labelLayerGroup.clearLayers(); markers = [];
+  data.forEach((row, i) => addMarkerRow(row, i));
+  const validCount = markers.filter(Boolean).length;
+  console.log('[dentat] Markers on map:', validCount, '/', data.length);
+  applyFilter();
+  updateStats();
+  buildFilterChips();
+  buildExtraFilters();
+  buildLegend();
+  if (validCount > 0) {
+    try { map.fitBounds(markersCluster.getBounds().pad(.1)); } catch(e) { console.warn('[dentat] fitBounds error:', e); }
+  }
+}
+
+// ── FILTER ──
+function toggleFilter(status) {
+  hiddenFilters.has(status) ? hiddenFilters.delete(status) : hiddenFilters.add(status);
+  applyFilter(); updateStats(); buildFilterChips(); buildExtraFilters();
+}
+function applyFilter() {
+  markers.forEach(entry => {
+    if (!entry) return;
+    const p = parseRow(entry.row);
+    const hiddenByStatus = hiddenFilters.has(String(p.trangThai));
+    const hiddenByLoai = filterLoaiDen !== '' && (p.loaiDen || '').toUpperCase() !== filterLoaiDen;
+    const hiddenByNguoi = filterNguoi !== '' && normalizeText(p.nguoiPhatHien || '') !== normalizeText(filterNguoi);
+    const hidden = hiddenByStatus || hiddenByLoai || hiddenByNguoi;
+    if (hidden) {
+      markersCluster.removeLayer(entry.marker);
+      if (entry.labelMarker) labelLayerGroup.removeLayer(entry.labelMarker);
+    } else {
+      if (!markersCluster.hasLayer(entry.marker)) markersCluster.addLayer(entry.marker);
+      if (entry.labelMarker && !labelLayerGroup.hasLayer(entry.labelMarker)) labelLayerGroup.addLayer(entry.labelMarker);
+    }
+  });
+}
+function updateStats() {
+  const counts = {}; Object.keys(STATUS_CONFIG).forEach(k => counts[k] = 0);
+  loadedData.forEach(row => { const p = parseRow(row); const s = String(p.trangThai||''); if (counts[s] !== undefined) counts[s]++; });
+  Object.keys(counts).forEach(s => {
+    const el = document.getElementById(`cnt-${s}`); if (el) el.textContent = counts[s];
+    const chip = document.getElementById(`chip-${s}`);
+    if (chip) chip.classList.toggle('dimmed', hiddenFilters.has(s));
+  });
+  const total = Object.values(counts).reduce((a,b)=>a+b,0);
+  document.getElementById('statTotal').textContent = `Tổng: ${total}`;
+}
+function buildFilterChips() {
+  const counts = {}; Object.keys(STATUS_CONFIG).forEach(k => counts[k] = 0);
+  loadedData.forEach(row => { const p = parseRow(row); const s = String(p.trangThai||''); if (counts[s] !== undefined) counts[s]++; });
+  const container = document.getElementById('filterChips');
+  container.innerHTML = '';
+  Object.entries(STATUS_CONFIG).forEach(([s, cfg]) => {
+    const el = document.createElement('div');
+    el.className = 'filter-chip' + (hiddenFilters.has(s) ? ' inactive' : ' active');
+    el.style.color = cfg.color; el.style.borderColor = hiddenFilters.has(s) ? 'var(--border)' : cfg.color;
+    el.innerHTML = `<div class="fc-dot" style="background:${cfg.color}"></div>${cfg.label}<span class="fc-cnt">${counts[s]}</span>`;
+    el.onclick = () => toggleFilter(s);
+    container.appendChild(el);
+  });
+}
+function buildLegend() {
+  const el = document.getElementById('sbLegend');
+  el.innerHTML = Object.entries(STATUS_CONFIG).map(([s,cfg]) =>
+    `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px">
+      <div style="width:10px;height:10px;border-radius:50%;background:${cfg.color};flex-shrink:0"></div>
+      <span>${cfg.label}</span>
+    </div>`
+  ).join('');
+}
+function buildExtraFilters() {
+  // Loại đèn
+  const loaiWrap = document.getElementById('filterLoaiDenChips');
+  if (loaiWrap) {
+    loaiWrap.innerHTML = '';
+    [['', 'Tất cả', '#64748b'], ['LED', 'LED', '#10b981'], ['HPS', 'HPS', '#f97316']].forEach(([val, label, color]) => {
+      const active = filterLoaiDen === val;
+      const el = document.createElement('button');
+      el.className = 'filter-chip' + (active ? ' active' : '');
+      el.style.color = active ? color : '';
+      el.textContent = label;
+      el.onclick = () => { filterLoaiDen = val; applyFilter(); buildExtraFilters(); updateStats(); };
+      loaiWrap.appendChild(el);
+    });
+  }
+  // Người phát hiện
+  const nguoiWrap = document.getElementById('filterNguoiChips');
+  if (nguoiWrap) {
+    nguoiWrap.innerHTML = '';
+    const names = [...new Set(loadedData.map(r => (parseRow(r).nguoiPhatHien || '').trim()).filter(Boolean))].sort();
+    [['', 'Tất cả'], ...names.map(n => [n, n])].forEach(([val, label]) => {
+      const active = filterNguoi === val;
+      const el = document.createElement('button');
+      el.className = 'filter-chip' + (active ? ' active' : '');
+      el.style.color = active ? 'var(--sky)' : '';
+      el.textContent = label;
+      el.onclick = () => { filterNguoi = val; applyFilter(); buildExtraFilters(); updateStats(); };
+      nguoiWrap.appendChild(el);
+    });
+  }
+  // Nút xóa bộ lọc
+  const hasFilter = hiddenFilters.size > 0 || filterLoaiDen !== '' || filterNguoi !== '';
+  const clearSec = document.getElementById('clearFilterSection');
+  if (clearSec) clearSec.style.display = hasFilter ? '' : 'none';
+}
+function clearAllFilters() {
+  hiddenFilters.clear();
+  filterLoaiDen = '';
+  filterNguoi = '';
+  applyFilter();
+  updateStats();
+  buildFilterChips();
+  buildExtraFilters();
+}
+
+// ── STATUS LIST PANEL ──
+function openStatusList(status) {
+  const cfg = STATUS_CONFIG[status] || { label: 'Không xác định', color: '#94a3b8', bg: '#f1f5f9', emoji: '?' };
+  document.getElementById('slDot').style.background = cfg.color;
+  document.getElementById('slTitle').textContent = cfg.label;
+
+  const items = markers.filter(Boolean).filter(e => String(parseRow(e.row).trangThai) === String(status));
+  document.getElementById('slCnt').textContent = `${items.length} đèn`;
+
+  const body = document.getElementById('slBody');
+  if (!items.length) {
+    body.innerHTML = `<div class="sl-empty">💡 Không có đèn nào trong trạng thái này</div>`;
+  } else {
+    body.innerHTML = items.map(entry => {
+      const p = parseRow(entry.row);
+      const days = daysBetween(p.ngayPhatHien);
+      const broken = ['1','5','7'].includes(String(p.trangThai));
+      const badge = broken && days !== null
+        ? `<span class="sl-badge" style="background:${cfg.bg};color:${cfg.color}">${days <= 0 ? 'Hôm nay' : days + ' ngày'}</span>`
+        : (p.ngaySua ? `<span class="sl-badge" style="background:#d1fae5;color:#065f46">Đã sửa</span>` : '');
+      const addr = [p.duong, p.phuong].filter(Boolean).join(', ') || 'Chưa có địa chỉ';
+      const tenTu = p.tenTu ? ` · Tủ: ${p.tenTu}` : '';
+      return `<div class="sl-item" style="border-left-color:${cfg.color}" onclick="flyToEntry(${entry.rowIndex})">
+        <div class="sl-icon" style="background:${cfg.bg}">${cfg.emoji}</div>
+        <div class="sl-main">
+          <div class="sl-name">${p.soTru || '(Chưa có số trụ)'}</div>
+          <div class="sl-sub">${addr}${tenTu}</div>
+        </div>
+        ${badge}
+        <div class="sl-arrow">›</div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('slOverlay').classList.add('open');
+  document.getElementById('slPanel').classList.add('open');
+}
+
+function closeStatusList() {
+  document.getElementById('slOverlay').classList.remove('open');
+  document.getElementById('slPanel').classList.remove('open');
+}
+
+function flyToEntry(index) {
+  const entry = markers[index];
+  if (!entry) return;
+  closeStatusList();
+  map.setView([entry.lat, entry.lon], 18);
+  setTimeout(() => entry.marker.openPopup(), 380);
+}
+
+// ── IMPORT LOCAL FILE ──
+function processFile(event) {
+  if (isDemoUser()) { denyDemo(); event.target.value = null; return; }
+  const file = event.target.files && event.target.files[0];
+  event.target.value = null;
+  if (!file) return;
+  showToast('⏳ Đang đọc file...');
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const wb = XLSX.read(ev.target.result, { type: 'array' });
+      let data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+      data = data.filter(r => r && Object.values(r).some(v => v !== null && v !== ''));
+      if (!data.length) { showToast('❌ File không có dữ liệu hợp lệ'); return; }
+      loadedData = data;
+      addMarkersToMap(loadedData);
+      showToast(`✅ Đã nhập ${data.length} đèn từ ${file.name}`);
+    } catch(e) {
+      showToast('❌ Không đọc được file: ' + e.message);
+    }
+  };
+  reader.onerror = () => showToast('❌ Lỗi đọc file');
+  reader.readAsArrayBuffer(file);
+}
+
+// ── LOAD DATA ──
+async function loadDataFromSheet() {
+  showToast('⏳ Đang tải dữ liệu từ Data...');
+  try {
+    const res = await fetch(GOOGLE_SHEET_CSV_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const csv = await res.text();
+    const wb = XLSX.read(csv, { type: 'string' });
+    let data = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
+    data = data.filter(r => r && Object.values(r).some(v => v !== null && v !== ''));
+    console.log('[dentat] Sheet headers:', data[0] ? Object.keys(data[0]) : 'no data');
+    console.log('[dentat] Loaded rows:', data.length);
+    if (data[0]) {
+      const sample = parseRow(data[0]);
+      console.log('[dentat] Sample row parsed:', sample);
+    }
+    loadedData = data;
+    addMarkersToMap(loadedData);
+    showToast(`✅ Đã tải ${data.length} đèn từ Data`);
+  } catch(e) {
+    console.error('[dentat] Load error:', e);
+    showToast('❌ Không tải được dữ liệu: ' + e.message);
+  }
+}
+
+// ── ADD MARKER MODE ──
+function startAddMarker() {
+  if (isDemoUser()) { denyDemo(); return; }
+  if (addMarkerMode) { disableAddMode(); return; }
+  enableAddMode();
+  const useGPS = confirm('Dùng vị trí GPS để thêm đèn?\nOK = dùng GPS  |  Hủy = nhấp vào bản đồ');
+  if (useGPS) {
+    if (!navigator.geolocation) { showToast('Trình duyệt không hỗ trợ GPS'); disableAddMode(); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos => showFormAt(pos.coords.latitude, pos.coords.longitude),
+      err => { showToast('Không lấy được GPS: ' + err.message); disableAddMode(); }
+    );
+  }
+}
+function enableAddMode() {
+  addMarkerMode = true; pendingNewMarker = true;
+  const icon = document.getElementById('addMarkerIcon');
+  const lbl = document.getElementById('addMarkerLabel');
+  icon.textContent = '🛑'; icon.style.background = 'linear-gradient(135deg,#ef4444,#b91c1c)';
+  lbl.textContent = 'Dừng';
+  showToast('Nhấp vào bản đồ để đặt vị trí đèn');
+}
+function disableAddMode() {
+  addMarkerMode = false; pendingNewMarker = false;
+  const icon = document.getElementById('addMarkerIcon');
+  const lbl = document.getElementById('addMarkerLabel');
+  icon.textContent = '➕'; icon.style.background = 'linear-gradient(135deg,var(--orange),#dc2626)';
+  lbl.textContent = 'Thêm';
+}
+
+function showFormAt(lat, lon) {
+  editingIndex = null; disableAddMode();
+  fillForm(null, lat, lon);
+}
+function openEditPopup(index) {
+  if (isDemoUser()) { denyDemo(); return; }
+  if (index < 0 || index >= loadedData.length) { showToast('Không tìm thấy dữ liệu'); return; }
+  editingIndex = index;
+  fillForm(loadedData[index]);
+}
+
+function fillForm(row, lat, lon) {
+  document.getElementById('mpopTitle').textContent = row ? `✏️ Sửa: ${parseRow(row).soTru || 'đèn'}` : '➕ Thêm đèn mới';
+  if (row) {
+    const p = parseRow(row);
+    document.getElementById('fId').value = p.id;
+    document.getElementById('fSoTru').value = p.soTru;
+    document.getElementById('fTenTu').value = p.tenTu;
+    document.getElementById('fLoaiDen').value = p.loaiDen;
+    document.getElementById('fCongSuat').value = p.congSuat;
+    document.getElementById('fTrangThai').value = p.trangThai;
+    document.getElementById('fLat').value = Number.isFinite(p.lat) ? p.lat : '';
+    document.getElementById('fLon').value = Number.isFinite(p.lon) ? p.lon : '';
+    document.getElementById('fDuong').value = p.duong;
+    document.getElementById('fPhuong').value = p.phuong;
+    document.getElementById('fNgayPhatHien').value = toInputDate(p.ngayPhatHien);
+    document.getElementById('fNguoiPhatHien').value = p.nguoiPhatHien;
+    document.getElementById('fNgaySua').value = toInputDate(p.ngaySua);
+    document.getElementById('fNguoiSua').value = p.nguoiSua;
+    document.getElementById('fVatTuSua').value = p.vatTuSua;
+    document.getElementById('fGhiChu').value = p.ghiChu;
+    document.getElementById('fCoordsText').textContent = Number.isFinite(p.lat) ? `Tọa độ: ${p.lat.toFixed(6)}, ${p.lon.toFixed(6)}` : 'Tọa độ: —';
+    markerImageDataUrl = p.hinhAnh; markerImagePath = normalizeImagePath(p.hinhAnh);
+    document.getElementById('fImagePreview').innerHTML = markerImageDataUrl ? `<img src="${markerImageDataUrl}" style="max-height:80px;border-radius:8px">` : '';
+  } else {
+    const maxId = loadedData.reduce((m, r) => { const n = parseInt(parseRow(r).id); return Number.isFinite(n) ? Math.max(m, n) : m; }, 0);
+    ['fSoTru','fTenTu','fCongSuat','fDuong','fPhuong','fNguoiPhatHien','fNguoiSua','fVatTuSua','fGhiChu'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('fId').value = maxId + 1;
+    document.getElementById('fLoaiDen').value = '';
+    document.getElementById('fTrangThai').value = '1';
+    document.getElementById('fLat').value = lat ?? '';
+    document.getElementById('fLon').value = lon ?? '';
+    document.getElementById('fNgayPhatHien').value = new Date().toISOString().split('T')[0];
+    document.getElementById('fNgaySua').value = '';
+    document.getElementById('fCoordsText').textContent = lat != null ? `Tọa độ: ${lat.toFixed(6)}, ${lon.toFixed(6)}` : 'Tọa độ: —';
+    if (currentUser) document.getElementById('fNguoiPhatHien').value = currentUser.displayName || currentUser.username;
+    markerImageDataUrl = ''; markerImagePath = '';
+    document.getElementById('fImagePreview').innerHTML = '';
+    if (Number.isFinite(lat) && Number.isFinite(lon)) reverseGeocode(lat, lon);
+  }
+  document.getElementById('fImageInput').value = null;
+  document.getElementById('markerForm').classList.add('open');
+  document.getElementById('fSoTru').focus();
+}
+
+function hideForm() {
+  document.getElementById('markerForm').classList.remove('open');
+  editingIndex = null; markerImageDataUrl = ''; markerImagePath = '';
+}
+function cancelMarkerPopup() { hideForm(); }
+
+// ── REVERSE GEOCODE ──
+async function reverseGeocode(lat, lon) {
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=vi`);
+    const d = await r.json();
+    const a = d.address || {};
+    const duong = a.road || a.pedestrian || a.footway || a.path || '';
+    const phuong = a.suburb || a.quarter || a.neighbourhood || a.village || a.county || '';
+    if (duong) document.getElementById('fDuong').value = duong;
+    if (phuong) document.getElementById('fPhuong').value = phuong;
+    if (duong || phuong) showToast('📍 Đã điền tên đường/phường tự động');
+  } catch(e) {}
+}
+
+// ── GPS ──
+function setMarkerToCurrentLocation() {
+  if (!navigator.geolocation) { showToast('Trình duyệt không hỗ trợ GPS'); return; }
+  const btn = document.querySelector('.loc-btn');
+  if (btn) { btn.textContent = '⏳ Đang lấy GPS...'; btn.disabled = true; }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lat = pos.coords.latitude, lon = pos.coords.longitude;
+      document.getElementById('fLat').value = lat.toFixed(6);
+      document.getElementById('fLon').value = lon.toFixed(6);
+      document.getElementById('fCoordsText').textContent = `Tọa độ: ${lat.toFixed(6)}, ${lon.toFixed(6)} ±${Math.round(pos.coords.accuracy)}m`;
+      if (btn) { btn.textContent = `📍 GPS: ±${Math.round(pos.coords.accuracy)}m`; btn.disabled = false; }
+      reverseGeocode(lat, lon);
+    },
+    err => {
+      showToast('Lỗi GPS: ' + err.message);
+      if (btn) { btn.textContent = '📍 Lấy vị trí GPS hiện tại'; btn.disabled = false; }
+    },
+    { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
+  );
+}
+function centerOnUserLocation() {
+  if (!navigator.geolocation) { showToast('Trình duyệt không hỗ trợ GPS'); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lat = pos.coords.latitude, lon = pos.coords.longitude;
+      if (currentLocationMarker) currentLocationMarker.setLatLng([lat, lon]);
+      else currentLocationMarker = L.marker([lat, lon], {
+        icon: L.divIcon({ className: '', html: '<div class="gps-dot"></div>', iconSize: [18,18], iconAnchor: [9,9] })
+      }).addTo(map).bindPopup('Vị trí của bạn');
+      map.setView([lat, lon], 17);
+    },
+    err => showToast('Không lấy được vị trí: ' + err.message)
+  );
+}
+
+// ── SAVE MARKER ──
+async function saveMarkerPopup() {
+  if (isDemoUser()) { denyDemo(); return; }
+  const soTru = document.getElementById('fSoTru').value.trim();
+  const trangThai = document.getElementById('fTrangThai').value;
+  if (!soTru) { showToast('Vui lòng nhập số trụ'); return; }
+  if (!trangThai) { showToast('Vui lòng chọn trạng thái'); return; }
+  const btn = document.getElementById('mpopSaveBtn');
+  const orig = btn.textContent;
+
+  // 1. Upload ảnh lên GitHub nếu có base64 mới
+  let finalImagePath = markerImagePath;
+  if (markerImageDataUrl && markerImageDataUrl.startsWith('data:image/')) {
+    btn.disabled = true; btn.textContent = '⏳ Đang upload ảnh...';
+    try {
+      const uploaded = await uploadImageViaGas(markerImageDataUrl, soTru);
+      if (uploaded) { finalImagePath = uploaded; showToast('✅ Upload ảnh thành công'); }
+    } catch(e) {
+      showToast('⚠️ Không upload được ảnh: ' + e.message);
+    }
+    btn.disabled = false; btn.textContent = orig;
+  }
+
+  // 2. Build rowData
+  const lat = parseFloat(document.getElementById('fLat').value);
+  const lon = parseFloat(document.getElementById('fLon').value);
+  const vn = (Number.isFinite(lat) && Number.isFinite(lon)) ? convertLatLonToVn2000(lat, lon) : { x: '', y: '' };
+  const rowData = {
+    action: 'full_update',
+    id: document.getElementById('fId').value.trim(),
+    soTru, tenTu: document.getElementById('fTenTu').value.trim(),
+    lat: Number.isFinite(lat) ? lat : '',
+    lon: Number.isFinite(lon) ? lon : '',
+    loaiDen: document.getElementById('fLoaiDen').value,
+    congSuat: document.getElementById('fCongSuat').value.trim(),
+    trangThai,
+    duong: document.getElementById('fDuong').value.trim(),
+    phuong: document.getElementById('fPhuong').value.trim(),
+    ngayPhatHien: fromInputDate(document.getElementById('fNgayPhatHien').value),
+    nguoiPhatHien: document.getElementById('fNguoiPhatHien').value.trim(),
+    ngaySua: fromInputDate(document.getElementById('fNgaySua').value),
+    nguoiSua: document.getElementById('fNguoiSua').value.trim(),
+    vatTuSua: document.getElementById('fVatTuSua').value.trim(),
+    hinhAnh: finalImagePath || '',
+    ghiChu: document.getElementById('fGhiChu').value.trim(),
+    vn2000x: vn.x ? Math.round(vn.x) : '',
+    vn2000y: vn.y ? Math.round(vn.y) : '',
+  };
+
+  btn.disabled = true; btn.textContent = '⌛ Đang lưu...';
+  try {
+    // Khi edit: merge vào row gốc để giữ key tên cột Sheet gốc, GAS đọc đúng cột
+    const payload = editingIndex !== null
+      ? (() => { const r = { ...loadedData[editingIndex] }; applyFieldsToRow(r, rowData); return r; })()
+      : rowData;
+    console.log('[GAS payload]', JSON.stringify(payload, null, 2));
+    await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    if (editingIndex !== null) {
+      loadedData[editingIndex] = payload;
+      const entry = markers[editingIndex];
+      if (entry && Number.isFinite(lat) && Number.isFinite(lon)) {
+        entry.row = payload; entry.lat = lat; entry.lon = lon; entry.name = soTru;
+        markersCluster.removeLayer(entry.marker);
+        if (entry.labelMarker) labelLayerGroup.removeLayer(entry.labelMarker);
+        const newIcon = createStatusIcon(trangThai);
+        entry.marker.setLatLng([lat, lon]); entry.marker.setIcon(newIcon);
+        entry.marker.setPopupContent(createPopupContent(payload, editingIndex));
+        markersCluster.addLayer(entry.marker);
+        if (soTru) {
+          entry.labelMarker = L.marker([lat, lon], {
+            icon: L.divIcon({ className: 'custom-label', html: `<div>${soTru}</div>`, iconSize: [80,16], iconAnchor: [40,22] })
+          }).addTo(labelLayerGroup);
+        }
+      }
+    } else {
+      loadedData.push(rowData);
+      addMarkerRow(rowData, loadedData.length - 1);
+    }
+    applyFilter(); updateStats(); buildFilterChips();
+    showToast(`✅ Đã lưu: ${soTru}`);
+    hideForm();
+  } catch(e) {
+    showToast('❌ Lỗi: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
+
+// ── QUICK FIX ──
+async function quickFix(index) {
+  if (isDemoUser()) { denyDemo(); return; }
+  if (index < 0 || index >= loadedData.length) return;
+  const p = parseRow(loadedData[index]);
+  const newStatus = p.loaiDen === 'HPS' ? '4' : '3';
+  const today = todayStr();
+  const rowData = { ...loadedData[index] };
+  applyFieldsToRow(rowData, { trangThai: newStatus, ngaySua: today });
+  rowData.action = 'full_update';
+  loadedData[index] = rowData;
+  const entry = markers[index];
+  if (entry) {
+    entry.row = rowData;
+    entry.marker.setIcon(createStatusIcon(newStatus));
+    entry.marker.closePopup();
+  }
+  applyFilter(); updateStats(); buildFilterChips();
+  showToast(`✅ Đã đánh dấu ${p.soTru} sửa xong hôm nay`);
+  try {
+    console.log('[GAS quickFix payload]', JSON.stringify(rowData, null, 2));
+    await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rowData) });
+  } catch(e) {}
+}
+
+// ── IMAGE ──
+function triggerImageInput() { if (isDemoUser()) { denyDemo(); return; } const f = document.getElementById('fImageInput'); if (f) { f.value = null; f.click(); } }
+function resizeImage(dataUrl, cb) {
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    let w = img.width, h = img.height;
+    const sc = Math.min(1, 800 / Math.max(w, h));
+    w = Math.round(w*sc); h = Math.round(h*sc);
+    let q = 0.88;
+    const render = () => { canvas.width=w; canvas.height=h; ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0,w,h); return canvas.toDataURL('image/jpeg',q); };
+    let r = render();
+    while (r.length > MAX_IMG_LEN && q > 0.1) { q -= .08; r = render(); }
+    while (r.length > MAX_IMG_LEN && Math.max(w,h) > 100) { w=Math.round(w*.85); h=Math.round(h*.85); r=render(); }
+    cb(r.length <= MAX_IMG_LEN ? r : '', r.length > MAX_IMG_LEN ? 'Ảnh quá lớn' : '');
+  };
+  img.onerror = () => cb('', 'Không đọc được ảnh');
+  img.src = dataUrl;
+}
+function handleImageFile(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => resizeImage(ev.target.result, (res, err) => {
+    if (res) {
+      markerImageDataUrl = res; markerImagePath = '';
+      document.getElementById('fImagePreview').innerHTML = `<img src="${res}" style="max-height:80px;border-radius:8px">`;
+      showToast('✅ Ảnh sẵn sàng');
+    } else { showToast('❌ ' + (err || 'Lỗi ảnh')); }
+  });
+  reader.readAsDataURL(file);
+}
+
+// ── EXPORT EXCEL ──
+function saveMarkerData() {
+  if (isDemoUser()) { denyDemo(); return; }
+  if (!loadedData.length) { showToast('Không có dữ liệu để lưu'); return; }
+  const header = ['ID','Số trụ','Tên tủ','latitude','lontitude','Loại đèn','Công suất','Trang thai','Đường','Phường','Ngày phát hiện','Người phát hiện','Ngày sửa','Người sửa','Vật tư sửa','HÌnh ảnh','Ghi chú','VN2000-X','VN2000-Y'];
+  const ws = XLSX.utils.aoa_to_sheet([header, ...loadedData.map(rowToArray)]);
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Danh sách đèn');
+  XLSX.writeFile(wb, `dentat-${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.xlsx`);
+  showToast(`✅ Đã xuất ${loadedData.length} đèn ra Excel`);
+}
+
+// ── DAILY REPORT ──
+function populateReportFilters() {
+  const norm = v => (v||'').trim();
+  const phuongs = [...new Set(loadedData.map(r => norm(parseRow(r).phuong)).filter(Boolean))].sort((a,b) => a.localeCompare(b,'vi'));
+  const nguois  = [...new Set(loadedData.map(r => norm(parseRow(r).nguoiPhatHien)).filter(Boolean))].sort((a,b) => a.localeCompare(b,'vi'));
+  const sel = (id, items, all) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = `<option value="">${all}</option>` + items.map(v => `<option value="${v}"${v===cur?' selected':''}>${v}</option>`).join('');
+  };
+  sel('rptPhuong', phuongs, 'Tất cả phường');
+  sel('rptNguoiPH', nguois,  'Tất cả');
+}
+
+function openReportModal() {
+  if (isDemoUser()) { denyDemo(); return; }
+  const n = new Date();
+  const fmt = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  const weekAgo = new Date(n.getFullYear(), n.getMonth(), n.getDate() - 7);
+  document.getElementById('rptFrom').value = fmt(weekAgo);
+  document.getElementById('rptTo').value = fmt(n);
+  populateReportFilters();
+  updateReportPreview();
+  document.getElementById('reportModal').classList.add('open');
+}
+function closeReportModal() { document.getElementById('reportModal').classList.remove('open'); }
+function getReportRows() {
+  const fromD = parseViDate(document.getElementById('rptFrom').value);
+  const toD   = parseViDate(document.getElementById('rptTo').value);
+  if (!fromD || !toD) return [];
+  fromD.setHours(0,0,0,0);
+  toD.setHours(23,59,59,999);
+  const fPhuong = (document.getElementById('rptPhuong')?.value  || '').trim();
+  const fNguoi  = (document.getElementById('rptNguoiPH')?.value || '').trim().toLowerCase();
+  return loadedData.filter(row => {
+    const p = parseRow(row);
+    if (!p.ngayPhatHien) return false;
+    const d = parseViDate(p.ngayPhatHien);
+    if (!d || d < fromD || d > toD) return false;
+    if (fPhuong && (p.phuong||'').trim() !== fPhuong) return false;
+    if (fNguoi  && (p.nguoiPhatHien||'').trim().toLowerCase() !== fNguoi) return false;
+    return true;
+  });
+}
+function updateReportPreview() {
+  const rows = getReportRows();
+  const counts = {}; Object.keys(STATUS_CONFIG).forEach(k => counts[k] = 0);
+  rows.forEach(r => { const p = parseRow(r); const s = String(p.trangThai||''); if (counts[s] !== undefined) counts[s]++; });
+  const container = document.getElementById('rptPreview');
+  container.innerHTML = `<div style="font-size:13px;font-weight:700;margin-bottom:8px">Tổng: ${rows.length} đèn</div>` +
+    Object.entries(STATUS_CONFIG).filter(([s])=>counts[s]>0).map(([s,cfg])=>
+      `<div class="rpt-preview-row"><span style="display:flex;align-items:center"><span class="dot" style="background:${cfg.color}"></span>${cfg.label}</span><strong style="color:${cfg.color}">${counts[s]}</strong></div>`
+    ).join('') + (rows.length === 0 ? '<div style="font-size:12px;color:var(--text-muted);text-align:center">Không có dữ liệu trong khoảng này</div>' : '');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  ['rptFrom','rptTo','rptPhuong','rptNguoiPH'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', updateReportPreview);
+  });
+});
+function exportReport() {
+  try {
+    const rows = getReportRows();
+    if (!rows.length) { showToast('Không có dữ liệu trong khoảng ngày này'); return; }
+
+    const fromVal  = document.getElementById('rptFrom').value;
+    const toVal    = document.getElementById('rptTo').value;
+    const fromFile = fromVal.replace(/\//g, '-');
+    const toFile   = toVal.replace(/\//g, '-');
+    const fPhuong  = (document.getElementById('rptPhuong')?.value  || '').trim();
+    const fNguoi   = (document.getElementById('rptNguoiPH')?.value || '').trim();
+    const filterTxt = [fPhuong && ('Phường: ' + fPhuong), fNguoi && ('Người PH: ' + fNguoi)].filter(Boolean).join(' | ');
+
+    // đếm theo trạng thái
+    const counts = {};
+    Object.keys(STATUS_CONFIG).forEach(k => counts[k] = 0);
+    rows.forEach(r => { const p = parseRow(r); const s = String(p.trangThai||''); if (counts[s] !== undefined) counts[s]++; });
+    const totalFixed = rows.filter(r => { const p = parseRow(r); return p.ngaySua && String(p.ngaySua).trim(); }).length;
+
+    const NC   = 15; // số cột
+    const aoa  = []; // array of arrays cho toàn bộ sheet
+    const merges = [];
+
+    const mr = (r1, c1, r2, c2) => merges.push({ s:{r:r1,c:c1}, e:{r:r2,c:c2} });
+
+    // ── TIÊU ĐỀ (rows 0-2, 0-indexed) ──
+    aoa.push(['CHIẾU SÁNG KHU VỰC TRUNG TÂM', ...Array(NC-1).fill('')]);       mr(0,0,0,NC-1);
+    aoa.push(['BÁO CÁO ĐÈN TẮT / HƯ HỆ THỐNG CHIẾU SÁNG CÔNG CỘNG', ...Array(NC-1).fill('')]); mr(1,0,1,NC-1);
+    const period = 'Kỳ báo cáo: ' + fromVal + ' — ' + toVal + '   |   Xuất ngày: ' + todayStr() + (filterTxt ? '   |   ' + filterTxt : '');
+    aoa.push([period, ...Array(NC-1).fill('')]); mr(2,0,2,NC-1);
+
+    // ── SPACER ──
+    aoa.push(Array(NC).fill(''));
+
+    // ── TỔNG HỢP header (row 4) ──
+    aoa.push(['TỔNG HỢP', ...Array(NC-1).fill('')]); mr(4,0,4,NC-1);
+
+    // ── SUMMARY labels (row 5) ──
+    const sumLabels = ['Tổng đèn trong kỳ','','','Đèn LED hư (mã 1)','','','Đèn HPS hư (mã 7)','','','Hư quá 10 ngày','','','Đã sửa trong kỳ','',''];
+    aoa.push(sumLabels);
+    mr(5,0,5,2); mr(5,3,5,5); mr(5,6,5,8); mr(5,9,5,11); mr(5,12,5,14);
+
+    // ── SUMMARY values (row 6) ──
+    const sumVals = [rows.length,'','', counts['1']||0,'','', counts['7']||0,'','', counts['5']||0,'','', totalFixed,'',''];
+    aoa.push(sumVals);
+    mr(6,0,6,2); mr(6,3,6,5); mr(6,6,6,8); mr(6,9,6,11); mr(6,12,6,14);
+
+    // ── SPACER ──
+    aoa.push(Array(NC).fill(''));
+
+    // ── HEADER BẢNG (row 8) ──
+    aoa.push(['STT','Số trụ','Tên tủ','Đường','Phường','Loại đèn','Công suất','Trạng thái',
+              'Ngày phát hiện','Số ngày hư','Người phát hiện','Ngày sửa','Người sửa','Vật tư sửa','Ghi chú']);
+
+    // ── DỮ LIỆU (row 9+) ──
+    rows.forEach((row, i) => {
+      const p   = parseRow(row);
+      const cfg = STATUS_CONFIG[String(p.trangThai)] || { label:'Không xác định' };
+      const days = daysBetween(p.ngayPhatHien);
+      aoa.push([
+        i+1, p.soTru||'', p.tenTu||'', p.duong||'', p.phuong||'',
+        p.loaiDen||'', p.congSuat ? p.congSuat+'W' : '', cfg.label,
+        p.ngayPhatHien||'', days != null ? days : '',
+        p.nguoiPhatHien||'', p.ngaySua||'', p.nguoiSua||'', p.vatTuSua||'', p.ghiChu||'',
+      ]);
+    });
+
+    // ── FOOTER ──
+    const footerTxt = 'Hệ thống quản lý đèn tắt CSCC TP.HCM  —  Xuất ngày ' + todayStr();
+    aoa.push([footerTxt, ...Array(NC-1).fill('')]); mr(aoa.length-1, 0, aoa.length-1, NC-1);
+
+    // ── BUILD WORKBOOK ──
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws['!merges'] = merges;
+    ws['!cols']   = [5,12,14,22,14,10,10,22,13,9,16,11,13,20,20].map(w => ({ wch: w }));
+    ws['!rows']   = [
+      {hpt:22},{hpt:28},{hpt:18},{hpt:6},  // rows 0-3
+      {hpt:20},{hpt:18},{hpt:28},{hpt:6},  // rows 4-7
+      {hpt:22},                             // header
+      ...rows.map(() => ({hpt:18})),        // data
+      {hpt:14},                             // footer
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Báo cáo');
+    XLSX.writeFile(wb, 'BaoCao-DenTat-' + fromFile + '-den-' + toFile + '.xlsx');
+    showToast('✅ Xuất báo cáo ' + rows.length + ' đèn');
+    closeReportModal();
+  } catch(err) {
+    console.error('exportReport:', err);
+    showToast('❌ Lỗi xuất báo cáo: ' + (err.message || err));
+  }
+}
+
+// ── ROUTE ──
+function routeToMarker(index) {
+  if (!navigator.geolocation) { showToast('Trình duyệt không hỗ trợ GPS'); return; }
+  const entry = markers[index];
+  if (!entry) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude: la, longitude: lo } = pos.coords;
+    fetchRoute([la, lo], [entry.lat, entry.lon]);
+  }, err => showToast('Không lấy được GPS: ' + err.message));
+}
+async function fetchRoute(origin, dest) {
+  try {
+    if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
+    const url = `https://router.project-osrm.org/route/v1/driving/${origin[1]},${origin[0]};${dest[1]},${dest[0]}?overview=full&geometries=geojson`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data.routes || !data.routes[0]) { showToast('Không tìm được đường đi'); return; }
+    const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+    routeLine = L.polyline(coords, { color: '#0ea5e9', weight: 4, opacity: .85, dashArray: '8,4' }).addTo(map);
+    const dist = (data.routes[0].distance / 1000).toFixed(1);
+    const dur = Math.round(data.routes[0].duration / 60);
+    showToast(`🧭 ${dist}km — khoảng ${dur} phút`);
+    map.fitBounds(routeLine.getBounds().pad(.15));
+  } catch(e) { showToast('Lỗi lấy tuyến đường'); }
+}
+
+// ── VN2000 ──
+function convertLatLonToVn2000(lat, lon) {
+  const toRad = x => x * Math.PI / 180, a = 6378137, f = 1/298.257222101;
+  const e2 = 2*f - f*f, k0 = 0.9996;
+  const zone = Math.floor((lon+180)/6)+1, lon0 = toRad(zone*6-183);
+  const phi = toRad(lat), lam = toRad(lon);
+  const sinP = Math.sin(phi), cosP = Math.cos(phi), tanP = Math.tan(phi);
+  const N = a/Math.sqrt(1-e2*sinP*sinP), T = tanP*tanP, C = e2/(1-e2)*cosP*cosP;
+  const A = (lam-lon0)*cosP;
+  const M = a*((1-e2/4-3*e2**2/64-5*e2**3/256)*phi-(3*e2/8+3*e2**2/32+45*e2**3/1024)*Math.sin(2*phi)+(15*e2**2/256+45*e2**3/1024)*Math.sin(4*phi)-(35*e2**3/3072)*Math.sin(6*phi));
+  const x = k0*N*(A+(1-T+C)*A**3/6+(5-18*T+T*T+72*C-58*e2/(1-e2))*A**5/120);
+  const y = k0*(M+N*tanP*(A**2/2+(5-T+9*C+4*C*C)*A**4/24+(61-58*T+T*T+600*C-330*e2/(1-e2))*A**6/720));
+  return { x: x+500000, y };
+}
+
+// ── EXPORT DXF ──
+function exportMarkersToCad() {
+  if (isDemoUser()) { denyDemo(); return; }
+  const rows = loadedData.filter(r => { const p = parseRow(r); return Number.isFinite(p.lat) && Number.isFinite(p.lon); });
+  if (!rows.length) { showToast('Không có marker để xuất'); return; }
+  const L2 = [], add = t => L2.push(t);
+  add('0'); add('SECTION'); add('2'); add('HEADER'); add('0'); add('ENDSEC');
+  add('0'); add('SECTION'); add('2'); add('ENTITIES');
+  rows.forEach((r, i) => {
+    const p = parseRow(r), vn = convertLatLonToVn2000(p.lat, p.lon);
+    const label = (p.soTru || `D${i+1}`).replace(/\r?\n/g, ' ');
+    const cfg = STATUS_CONFIG[p.trangThai] || {};
+    add('0'); add('CIRCLE'); add('8'); add(cfg.label || '0'); add('10'); add(vn.x.toFixed(3)); add('20'); add(vn.y.toFixed(3)); add('30'); add('0'); add('40'); add('1.0');
+    add('0'); add('TEXT'); add('8'); add('0'); add('10'); add(vn.x.toFixed(3)); add('20'); add((vn.y + 1.5).toFixed(3)); add('30'); add('0'); add('40'); add('1.0'); add('1'); add(label);
+  });
+  add('0'); add('ENDSEC'); add('0'); add('EOF');
+  const blob = new Blob([L2.join('\r\n')], { type: 'application/dxf;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `dentat-${new Date().toLocaleDateString('vi-VN').replace(/\//g,'-')}.dxf`;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+  showToast(`✅ Đã xuất ${rows.length} đèn ra DXF`);
+}
+
+// ── DRAGGABLE POPUP ──
+
+// ── SERVICE WORKER ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(r => console.log('SW:', r.scope))
+      .catch(e => console.warn('SW failed:', e));
+  });
+}
+
+// ── INIT ──
+window.onload = () => {
+  initializeMap();
+  buildFilterChips();
+  buildLegend();
+  document.getElementById('reportModal').addEventListener('click', e => { if (e.target === document.getElementById('reportModal')) closeReportModal(); });
+  checkAuth();
+};
+</script>
 </body>
 </html>
